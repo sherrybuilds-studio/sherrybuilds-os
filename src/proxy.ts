@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 export const COOKIE_NAME = 'sb-auth'
 
-const PUBLIC_PREFIXES = ['/login', '/api/auth']
+const PUBLIC_PREFIXES = ['/login', '/api/auth', '/api/snapshot']
 
 async function expectedToken(): Promise<string> {
   const password = process.env.DASHBOARD_PASSWORD ?? ''
