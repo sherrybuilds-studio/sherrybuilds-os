@@ -46,6 +46,8 @@ float fbm(vec2 p, float t) {
   return v;
 }
 
+float ridge(float n) { return 1.0 - abs(2.0 * n - 1.0); }
+
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
   vec2 p = vec2(uv.x * uRes.x / uRes.y, uv.y) * 1.4;
@@ -54,30 +56,49 @@ void main() {
 
   // domain warp — the "magnetic" flow
   vec2 warp = vec2(fbm(p + vec2(0.0, 3.7), t), fbm(p + vec2(5.2, 1.3), t * 0.85));
-  float n = fbm(p * 1.15 + warp * 1.7, t);
 
-  // ridged: thin bright filaments where the field crosses its midline
-  float ridge = 1.0 - abs(2.0 * n - 1.0);
-  ridge = pow(smoothstep(0.62, 1.0, ridge), 3.0);
+  vec3 blue = vec3(0.231, 0.51, 0.965);   /* --accent-2 #3B82F6 */
+  vec3 cyan = vec3(0.133, 0.827, 0.933);  /* --accent   #22D3EE */
+  vec3 hot  = vec3(0.62, 0.94, 1.0);      /* near-white cyan for cores */
 
-  float glow = ridge * 0.85;
+  float glow = 0.0;
+  vec3 col = vec3(0.0);
 
-  // finer secondary tendrils (desktop only)
-  if (uDetail > 1.5) {
-    float n2 = fbm(p * 2.6 - warp * 1.2, t * 1.25);
-    float ridge2 = 1.0 - abs(2.0 * n2 - 1.0);
-    glow += pow(smoothstep(0.7, 1.0, ridge2), 4.0) * 0.35;
+  // FAR tier — broad, dim blue masses (depth base)
+  {
+    float r = ridge(fbm(p * 0.7 + warp * 1.2, t * 0.7));
+    float halo = pow(smoothstep(0.5, 1.0, r), 2.0) * 0.3;
+    glow += halo;
+    col += blue * 0.55 * halo;
   }
 
-  // faked metallic sheen — directional gradient of the field
-  float sheen = clamp((fbm(p * 1.15 + warp * 1.7 + vec2(0.03, 0.015), t) - n) * 7.0, -1.0, 1.0);
+  // MID tier — main tendrils: bright cyan core + soft blue bloom
+  {
+    float r = ridge(fbm(p * 1.15 + warp * 1.7, t));
+    float core = pow(smoothstep(0.74, 1.0, r), 5.0) * 0.95;
+    float halo = pow(smoothstep(0.48, 1.0, r), 2.2) * 0.5;
+    glow += core + halo;
+    col += cyan * core + blue * 0.8 * halo;
+  }
 
-  vec3 blue = vec3(0.231, 0.51, 0.965);  /* --accent-2 #3B82F6 */
-  vec3 cyan = vec3(0.133, 0.827, 0.933); /* --accent   #22D3EE */
-  vec3 col = mix(blue * 0.55, cyan, clamp(glow * 0.8 + sheen * 0.25, 0.0, 1.0));
+  // NEAR tier — thin hot filaments (desktop only): brightest, closest
+  if (uDetail > 1.5) {
+    float r = ridge(fbm(p * 2.4 - warp * 1.3, t * 1.3));
+    float core = pow(smoothstep(0.78, 1.0, r), 6.0) * 1.1;
+    float halo = pow(smoothstep(0.55, 1.0, r), 2.5) * 0.32;
+    glow += core + halo;
+    col += mix(cyan, hot, 0.5) * core + cyan * 0.7 * halo;
+  }
+
+  // vignette — navy deepens toward the edges so the glow pops centrally
+  vec2 cuv = uv - 0.5;
+  cuv.x *= uRes.x / uRes.y;
+  float vig = mix(0.45, 1.0, smoothstep(1.15, 0.25, length(cuv)));
+  glow *= vig;
+  col *= vig;
 
   float alpha = clamp(glow, 0.0, 1.0) * uIntensity;
-  gl_FragColor = vec4(col * alpha, alpha); /* premultiplied */
+  gl_FragColor = vec4(col * uIntensity, alpha); /* premultiplied */
 }
 `;
 
@@ -131,7 +152,7 @@ export default function Ferrofluid() {
     const uIntensity = gl.getUniformLocation(prog, "uIntensity");
     const uDetail = gl.getUniformLocation(prog, "uDetail");
 
-    gl.uniform1f(uIntensity, mobile ? 0.12 : 0.2);
+    gl.uniform1f(uIntensity, mobile ? 0.18 : 0.3);
     gl.uniform1f(uDetail, mobile ? 1 : 2);
 
     const resize = () => {
