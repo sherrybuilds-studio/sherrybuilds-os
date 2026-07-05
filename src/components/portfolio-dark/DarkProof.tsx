@@ -111,7 +111,7 @@ export default function DarkProof() {
           className="glass-liquid mx-auto mt-[var(--space-16)] max-w-[64rem] rounded-3xl lg:mt-[var(--space-24)]"
           style={{ padding: "clamp(2.5rem, 6vw, 4.5rem)" }}
         >
-          <div className="grid grid-cols-1 items-start gap-y-[var(--space-12)] md:grid-cols-2 md:gap-x-[var(--space-16)] md:gap-y-[var(--space-16)]">
+          <div className="glass-liquid-content grid grid-cols-1 items-start gap-y-[var(--space-12)] md:grid-cols-2 md:gap-x-[var(--space-16)] md:gap-y-[var(--space-16)]">
             {METRICS.map((m, i) => (
               <Reveal key={m.caption} delay={i * 0.08} onRevealStart={() => startCount(i)}>
                 <p
