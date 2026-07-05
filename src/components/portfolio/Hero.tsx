@@ -1,11 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useRef } from "react";
 import { gsap, useGSAP, EASE, STAGGER } from "@/lib/gsap";
 import MorphWord from "./MorphWord";
-
-const HeroParticles = dynamic(() => import("./HeroParticles"), { ssr: false });
 
 export default function Hero() {
   const scope = useRef<HTMLElement>(null);
@@ -26,18 +23,12 @@ export default function Hero() {
             { autoAlpha: 0, y: 18 },
             { autoAlpha: 1, y: 0, duration: 0.6, stagger: STAGGER },
             "-=0.55"
-          )
-          .fromTo(
-            ".hero-object",
-            { autoAlpha: 0 },
-            { autoAlpha: 1, duration: 1.1 },
-            0.35
           );
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
-          [".hero-line-inner", ".hero-chip", ".hero-sub", ".hero-ctas", ".hero-object"],
+          [".hero-line-inner", ".hero-chip", ".hero-sub", ".hero-ctas"],
           { autoAlpha: 1, y: 0, yPercent: 0 }
         );
       });
@@ -51,15 +42,6 @@ export default function Hero() {
       ref={scope}
       className="relative flex min-h-[100svh] items-center overflow-hidden"
     >
-      {/* Hero object — right zone on desktop, quiet backdrop on mobile */}
-      <div
-        className="hero-object pointer-events-none absolute inset-0 opacity-45 lg:pointer-events-auto lg:left-auto lg:right-0 lg:w-[54%] lg:opacity-100"
-        data-reveal=""
-        aria-hidden="true"
-      >
-        <HeroParticles />
-      </div>
-
       <div className="relative z-10 mx-auto w-full max-w-[80rem] px-6 lg:px-10">
         <div className="grid grid-cols-12">
           <div
