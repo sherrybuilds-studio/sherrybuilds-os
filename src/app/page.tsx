@@ -2,6 +2,7 @@ import SmoothScroll from "@/components/portfolio/SmoothScroll";
 import Nav from "@/components/portfolio/Nav";
 import Hero from "@/components/portfolio/Hero";
 import Proof from "@/components/portfolio/Proof";
+import Work from "@/components/portfolio/Work";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <main id="main">
         <Hero />
         <Proof />
+        <Work />
       </main>
     </div>
   );
