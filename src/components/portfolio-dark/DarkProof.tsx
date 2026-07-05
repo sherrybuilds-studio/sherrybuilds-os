@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap, EASE } from "@/lib/gsap";
+import { gsap, EASE, SplitText, useGSAP } from "@/lib/gsap";
 import Reveal from "@/components/portfolio/Reveal";
 
 type Metric = {
@@ -43,6 +43,46 @@ const mono: React.CSSProperties = {
 
 export default function DarkProof() {
   const numberRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+
+  // The statement BUILDS as you reach it: split into masked lines that
+  // rise with scroll (soft scrub), staggered top to bottom. Reduced
+  // motion never splits — the h2 just renders.
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const el = headlineRef.current;
+      if (!el) return;
+      const split = SplitText.create(el, {
+        type: "lines",
+        mask: "lines",
+        autoSplit: true,
+        onSplit(self) {
+          // same descender-room trick as the hero masks
+          (self.masks as HTMLElement[]).forEach((m) => {
+            m.style.paddingBottom = "0.18em";
+            m.style.marginBottom = "-0.18em";
+          });
+          return gsap.fromTo(
+            self.lines,
+            { yPercent: 115 },
+            {
+              yPercent: 0,
+              ease: "none",
+              stagger: 0.25,
+              scrollTrigger: {
+                trigger: el,
+                start: "clamp(top 92%)",
+                end: "clamp(top 45%)",
+                scrub: 0.6,
+              },
+            }
+          );
+        },
+      });
+      return () => split.revert();
+    });
+  });
 
   // Count-up synced to THE Reveal via its onRevealStart hook — no second
   // scroll trigger. Markup ships the final value, so reduced-motion and
@@ -67,10 +107,11 @@ export default function DarkProof() {
     <section
       id="proof"
       aria-labelledby="proof-heading"
+      data-chapter=""
       className="relative overflow-hidden"
       style={{ paddingBlock: "clamp(6rem, 14vh, 10rem)" }}
     >
-      <div className="mx-auto w-full max-w-[80rem] px-6 lg:px-10">
+      <div data-chapter-inner="" className="mx-auto w-full max-w-[80rem] px-6 lg:px-10">
         {/* Headline block — centered, matching the hero's rhythm */}
         <div className="relative mx-auto max-w-[56rem] text-center">
           {/* soft scrim so the statement stays crisp over the fluid */}
@@ -87,23 +128,25 @@ export default function DarkProof() {
             <p className="uppercase" style={mono}>
               01 — Proof
             </p>
-            <h2
-              id="proof-heading"
-              className="mx-auto mt-[var(--space-6)] max-w-[24ch]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "var(--step-6)",
-                fontWeight: 480,
-                lineHeight: 1.08,
-                letterSpacing: "-0.015em",
-                color: "var(--text)",
-                textWrap: "balance",
-              }}
-            >
-              The difference between a demo and a system is{" "}
-              <em style={{ color: "var(--accent)", fontWeight: 440 }}>measurability</em>.
-            </h2>
           </Reveal>
+          {/* scrub-built statement — no data-reveal: SplitText owns it */}
+          <h2
+            id="proof-heading"
+            ref={headlineRef}
+            className="mx-auto mt-[var(--space-6)] max-w-[24ch]"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "var(--step-6)",
+              fontWeight: 480,
+              lineHeight: 1.08,
+              letterSpacing: "-0.015em",
+              color: "var(--text)",
+              textWrap: "balance",
+            }}
+          >
+            The difference between a demo and a system is{" "}
+            <em style={{ color: "var(--accent)", fontWeight: 440 }}>measurability</em>.
+          </h2>
         </div>
 
         {/* Figures — ONE liquid-glass panel, clean aligned 2×2 */}

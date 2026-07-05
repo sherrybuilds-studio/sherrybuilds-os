@@ -24,6 +24,7 @@ uniform float uTime;
 uniform vec2 uRes;
 uniform float uIntensity;
 uniform float uDetail;
+uniform float uScroll; /* 0..1 page progress — depth as you move through */
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
@@ -50,7 +51,9 @@ float ridge(float n) { return 1.0 - abs(2.0 * n - 1.0); }
 
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 p = vec2(uv.x * uRes.x / uRes.y, uv.y) * 1.4;
+  // scrolling moves the camera through the fluid: slow pan + gentle zoom
+  vec2 p = vec2(uv.x * uRes.x / uRes.y, uv.y) * (1.4 + 0.18 * uScroll);
+  p += vec2(uScroll * 0.3, uScroll * 0.85);
 
   float t = uTime * 0.05; // continuous, slow
 
@@ -97,8 +100,10 @@ void main() {
   glow *= vig;
   col *= vig;
 
-  float alpha = clamp(glow, 0.0, 1.0) * uIntensity;
-  gl_FragColor = vec4(col * uIntensity, alpha); /* premultiplied */
+  // fluid warms slightly as you go deeper into the page
+  float k = uIntensity * (1.0 + 0.15 * uScroll);
+  float alpha = clamp(glow, 0.0, 1.0) * k;
+  gl_FragColor = vec4(col * k, alpha); /* premultiplied */
 }
 `;
 
@@ -151,9 +156,20 @@ export default function Ferrofluid() {
     const uRes = gl.getUniformLocation(prog, "uRes");
     const uIntensity = gl.getUniformLocation(prog, "uIntensity");
     const uDetail = gl.getUniformLocation(prog, "uDetail");
+    const uScroll = gl.getUniformLocation(prog, "uScroll");
 
     gl.uniform1f(uIntensity, mobile ? 0.18 : 0.3);
     gl.uniform1f(uDetail, mobile ? 1 : 2);
+    gl.uniform1f(uScroll, 0);
+
+    // page progress → shader depth (skipped under reduced motion)
+    let scrollTarget = 0;
+    let scrollCurrent = 0;
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollTarget = max > 0 ? window.scrollY / max : 0;
+    };
+    if (!reduced) window.addEventListener("scroll", onScroll, { passive: true });
 
     const resize = () => {
       canvas.width = canvas.clientWidth; // DPR 1 — soft background
@@ -165,6 +181,9 @@ export default function Ferrofluid() {
     window.addEventListener("resize", resize);
 
     const draw = (timeSec: number) => {
+      // eased follow so the depth shift glides with Lenis, never snaps
+      scrollCurrent += (scrollTarget - scrollCurrent) * 0.06;
+      gl.uniform1f(uScroll, scrollCurrent);
       gl.uniform1f(uTime, timeSec);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -185,6 +204,7 @@ export default function Ferrofluid() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", onScroll);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, []);

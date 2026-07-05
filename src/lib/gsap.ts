@@ -3,11 +3,12 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomEase } from "gsap/CustomEase";
+import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 
 // Single registration point for the whole portfolio.
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, CustomEase, useGSAP);
+  gsap.registerPlugin(ScrollTrigger, CustomEase, SplitText, useGSAP);
   // Mirrors --ease: cubic-bezier(0.16, 1, 0.3, 1)
   if (!CustomEase.get("pf")) CustomEase.create("pf", "0.16, 1, 0.3, 1");
 }
@@ -21,4 +22,4 @@ export const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export { gsap, ScrollTrigger, useGSAP };
+export { gsap, ScrollTrigger, SplitText, useGSAP };

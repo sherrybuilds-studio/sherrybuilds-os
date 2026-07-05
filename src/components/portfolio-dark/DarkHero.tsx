@@ -41,10 +41,14 @@ export default function DarkHero() {
     <section
       id="hero"
       ref={scope}
+      data-chapter=""
       className="relative flex min-h-[100svh] items-center overflow-hidden"
     >
       {/* No hero object — the ferrofluid background + centered type IS the hero */}
-      <div className="relative z-10 mx-auto w-full max-w-[80rem] px-6 lg:px-10">
+      <div
+        data-chapter-inner=""
+        className="relative z-10 mx-auto w-full max-w-[80rem] px-6 lg:px-10"
+      >
         <div className="relative mx-auto flex max-w-[52rem] flex-col items-center text-center">
           {/* readability scrim — soft radial dark pool behind the text block */}
           <div
