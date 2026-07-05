@@ -46,7 +46,10 @@ export default function Reveal({
             ease: EASE,
             delay,
             stagger: staggerChildren ? STAGGER : 0,
-            scrollTrigger: { trigger: el, start: "top 85%" },
+            // clamp() keeps the trigger inside scrollable bounds — without it,
+            // elements near the page bottom can never reach "top 85%" and
+            // stay invisible forever.
+            scrollTrigger: { trigger: el, start: "clamp(top 85%)" },
           }
         );
       });

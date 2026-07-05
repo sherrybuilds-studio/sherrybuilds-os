@@ -5,8 +5,6 @@ type Metric = {
   suffix?: string;
   caption: string;
   accent?: boolean;
-  /** Desktop grid placement + baseline offset (asymmetric, not cards) */
-  className: string;
 };
 
 const METRICS: Metric[] = [
@@ -15,25 +13,21 @@ const METRICS: Metric[] = [
     suffix: "%",
     caption: "Mean eval score, production",
     accent: true,
-    className: "lg:col-span-5 lg:col-start-1",
   },
   {
     value: "100",
     suffix: "%",
     caption: "First-run eval, reservation system",
-    className: "lg:col-span-4 lg:col-start-8 lg:mt-[var(--space-24)]",
   },
   {
     value: "38",
     suffix: "%",
     caption: "Token cost reduction, measured in Langfuse",
-    className: "lg:col-span-4 lg:col-start-2 lg:mt-[var(--space-16)]",
   },
   {
     value: "78",
     suffix: "/day",
     caption: "Autonomous pipeline throughput",
-    className: "lg:col-span-4 lg:col-start-8 lg:mt-[var(--space-32)]",
   },
 ];
 
@@ -48,7 +42,7 @@ export default function Proof() {
       <div className="mx-auto w-full max-w-[80rem] px-6 lg:px-10">
         {/* Section rule + index label */}
         <div
-          className="flex items-baseline justify-between border-t"
+          className="border-t"
           style={{ borderColor: "var(--border)", paddingTop: "var(--space-4)" }}
         >
           <span
@@ -81,10 +75,10 @@ export default function Proof() {
           </h2>
         </Reveal>
 
-        {/* Editorial figures — asymmetric grid, one column on mobile */}
-        <div className="mt-[var(--space-16)] grid grid-cols-1 gap-y-[var(--space-16)] lg:mt-[var(--space-24)] lg:grid-cols-12 lg:gap-y-0">
+        {/* Editorial figures — clean 2×2, tops aligned, size + whitespace do the work */}
+        <div className="mt-[var(--space-24)] grid grid-cols-1 items-start gap-y-[var(--space-16)] md:grid-cols-2 md:gap-x-[var(--space-16)] md:gap-y-[var(--space-24)] lg:mt-[var(--space-32)]">
           {METRICS.map((m, i) => (
-            <Reveal key={m.caption} delay={i * 0.06} className={m.className}>
+            <Reveal key={m.caption} delay={i * 0.06}>
               <p
                 style={{
                   fontFamily: "var(--font-display)",

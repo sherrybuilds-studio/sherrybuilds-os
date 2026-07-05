@@ -48,13 +48,30 @@ fs.mkdirSync(outDir, { recursive: true });
 
     await page.goto(`http://localhost:${port}`, { waitUntil: "networkidle", timeout: 60000 });
     await page.waitForTimeout(2000);
-    if (selector) {
-      await page.locator(selector).scrollIntoViewIfNeeded();
-      await page.waitForTimeout(1600); // let the Reveal settle
-    }
 
     const file = path.join(outDir, `${name}-${device}.png`);
-    await page.screenshot({ path: file });
+    if (selector) {
+      // Walk to the end of the section first so every scroll Reveal fires,
+      // then capture the WHOLE element (sections taller than one viewport
+      // would otherwise crop or show unrevealed content).
+      const loc = page.locator(selector);
+      await loc.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(900);
+      await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        const bottom = el.getBoundingClientRect().bottom + window.scrollY;
+        window.scrollTo(0, Math.max(0, bottom - window.innerHeight + 40));
+      }, selector);
+      await page.waitForTimeout(1400);
+      // Fixed chrome (nav, dev badge) would get baked into the middle of a
+      // taller-than-viewport element capture — hide it for the shot.
+      await page.addStyleTag({
+        content: "header{visibility:hidden!important} nextjs-portal{display:none!important}",
+      });
+      await loc.screenshot({ path: file });
+    } else {
+      await page.screenshot({ path: file });
+    }
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
