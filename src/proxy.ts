@@ -3,6 +3,9 @@ import type { NextRequest } from 'next/server'
 
 export const COOKIE_NAME = 'sb-auth'
 
+// Public-by-default: the portfolio at `/` is open to the world.
+// Only the internal dashboard + private APIs sit behind the password gate.
+const PROTECTED_PREFIXES = ['/os', '/demo', '/api']
 const PUBLIC_PREFIXES = ['/login', '/api/auth', '/api/snapshot']
 
 async function expectedToken(): Promise<string> {
@@ -18,6 +21,10 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next()
+  }
+
+  if (!PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
     return NextResponse.next()
   }
 
