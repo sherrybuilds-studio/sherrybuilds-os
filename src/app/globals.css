@@ -195,6 +195,11 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Anchored sections land below the fixed nav */
+.portfolio section[id] {
+  scroll-margin-top: calc(var(--nav-height) + var(--space-4));
+}
+
 .portfolio ::selection {
   background: var(--accent);
   color: #ffffff;

@@ -1,6 +1,7 @@
 import SmoothScroll from "@/components/portfolio/SmoothScroll";
 import Nav from "@/components/portfolio/Nav";
 import Hero from "@/components/portfolio/Hero";
+import Proof from "@/components/portfolio/Proof";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
       <Nav />
       <main id="main">
         <Hero />
+        <Proof />
       </main>
     </div>
   );
