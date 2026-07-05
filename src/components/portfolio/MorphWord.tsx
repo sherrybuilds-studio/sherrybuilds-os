@@ -86,7 +86,9 @@ export default function MorphWord() {
         ref={wrapRef}
         aria-hidden="true"
         className="relative inline-block overflow-hidden align-bottom"
-        style={{ color: "var(--accent)" }}
+        // bottom padding + negative margin: descenders (p, g) render inside
+        // the clip window instead of being sheared at the line box edge
+        style={{ color: "var(--accent)", paddingBottom: "0.18em", marginBottom: "-0.18em" }}
       >
         {/* invisible sizer keeps the line height honest */}
         <span className="invisible inline-block">{WORDS[0]}</span>

@@ -98,12 +98,20 @@ export default function DarkHero() {
                 color: "var(--text)",
               }}
             >
-              <span className="hero-line block overflow-hidden">
+              {/* each mask gets 0.18em of descender room (padding + negative
+                  margin) so Fraunces tails are never sheared by the clip */}
+              <span
+                className="hero-line block overflow-hidden"
+                style={{ paddingBottom: "0.18em", marginBottom: "-0.18em" }}
+              >
                 <span className="hero-line-inner block" data-reveal="">
                   Architecting
                 </span>
               </span>
-              <span className="hero-line block overflow-hidden">
+              <span
+                className="hero-line block overflow-hidden"
+                style={{ paddingBottom: "0.18em", marginBottom: "-0.18em" }}
+              >
                 <span
                   className="hero-line-inner block italic"
                   data-reveal=""
@@ -112,7 +120,10 @@ export default function DarkHero() {
                   intelligent
                 </span>
               </span>
-              <span className="hero-line block overflow-hidden">
+              <span
+                className="hero-line block overflow-hidden"
+                style={{ paddingBottom: "0.18em", marginBottom: "-0.18em" }}
+              >
                 <span className="hero-line-inner block" data-reveal="">
                   <MorphWord />.
                 </span>
