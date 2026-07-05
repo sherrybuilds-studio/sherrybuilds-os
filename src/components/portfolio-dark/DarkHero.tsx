@@ -44,20 +44,31 @@ export default function DarkHero() {
       ref={scope}
       className="relative flex min-h-[100svh] items-center overflow-hidden"
     >
-      {/* 3D shape slot — right zone on desktop, quiet backdrop on mobile */}
+      {/* 3D shape slot — centered BEHIND the text, pushed upward so its
+          bright mass halos the top of the headline */}
       <div
-        className="hero-object pointer-events-none absolute inset-x-0 top-[8%] mx-auto h-[45%] w-[86%] opacity-40 lg:inset-auto lg:right-[4%] lg:top-1/2 lg:h-[72%] lg:w-[44%] lg:-translate-y-1/2 lg:opacity-100"
+        className="hero-object pointer-events-none absolute left-1/2 -top-[4%] aspect-square w-[150vw] max-w-none -translate-x-1/2 opacity-70 md:-top-[18%] md:w-[min(74vw,820px)] md:opacity-100"
         data-reveal=""
       >
         <GlassShape />
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-[80rem] px-6 lg:px-10">
-        <div className="grid grid-cols-12">
+        <div className="relative mx-auto flex max-w-[52rem] flex-col items-center text-center">
+          {/* readability scrim — soft radial dark pool behind the text block */}
           <div
-            className="col-span-12 lg:col-span-7"
+            aria-hidden="true"
+            className="absolute -z-10"
             style={{
-              paddingTop: "calc(var(--nav-height) + var(--space-12))",
+              inset: "-18% -30%",
+              background:
+                "radial-gradient(ellipse 60% 55% at 50% 48%, rgba(10, 14, 26, 0.9) 0%, rgba(10, 14, 26, 0.6) 45%, transparent 72%)",
+            }}
+          />
+          <div
+            className="flex flex-col items-center"
+            style={{
+              paddingTop: "calc(var(--nav-height) + var(--space-8))",
               paddingBottom: "var(--space-16)",
             }}
           >
@@ -119,7 +130,7 @@ export default function DarkHero() {
 
             {/* Sub */}
             <p
-              className="hero-sub mt-[var(--space-8)] max-w-[46ch]"
+              className="hero-sub mx-auto mt-[var(--space-8)] max-w-[46ch]"
               data-reveal=""
               style={{ fontSize: "var(--step-1)", color: "var(--muted)", lineHeight: 1.55 }}
             >
@@ -130,7 +141,7 @@ export default function DarkHero() {
 
             {/* CTAs — cyan glass primary, glass-outline secondary */}
             <div
-              className="hero-ctas mt-[var(--space-12)] flex flex-wrap items-center gap-[var(--space-4)]"
+              className="hero-ctas mt-[var(--space-12)] flex w-full flex-col items-center justify-center gap-[var(--space-4)] sm:w-auto sm:flex-row"
               data-reveal=""
             >
               <a
