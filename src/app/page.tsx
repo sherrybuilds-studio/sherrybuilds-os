@@ -1,5 +1,5 @@
 import SmoothScroll from "@/components/portfolio/SmoothScroll";
-import AuroraVeil from "@/components/portfolio-dark/AuroraVeil";
+import Ferrofluid from "@/components/portfolio-dark/Ferrofluid";
 import DarkNav from "@/components/portfolio-dark/DarkNav";
 import DarkHero from "@/components/portfolio-dark/DarkHero";
 
@@ -16,7 +16,7 @@ export default function Home() {
       </a>
       <SmoothScroll />
       {/* THE one ambient layer, site-wide, behind all sections */}
-      <AuroraVeil />
+      <Ferrofluid />
       <DarkNav />
       <main id="main" className="relative" style={{ zIndex: 1 }}>
         <DarkHero />
