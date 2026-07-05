@@ -11,6 +11,13 @@ type RevealProps = {
   delay?: number;
   /** Stagger direct children instead of revealing the block as one. */
   staggerChildren?: boolean;
+  /**
+   * Extension hook: fires when the reveal tween starts (full-motion only).
+   * Lets content sync extra motion (e.g. number count-ups) to THE reveal
+   * instead of registering a second scroll trigger. Not called under
+   * reduced motion — content should already render its final state.
+   */
+  onRevealStart?: () => void;
 };
 
 /**
@@ -23,6 +30,7 @@ export default function Reveal({
   className,
   delay = 0,
   staggerChildren = false,
+  onRevealStart,
 }: RevealProps) {
   const ref = useRef<HTMLElement>(null);
 
@@ -45,6 +53,7 @@ export default function Reveal({
             duration: DUR_REVEAL,
             ease: EASE,
             delay,
+            onStart: onRevealStart,
             stagger: staggerChildren ? STAGGER : 0,
             // clamp() keeps the trigger inside scrollable bounds — without it,
             // elements near the page bottom can never reach "top 85%" and
