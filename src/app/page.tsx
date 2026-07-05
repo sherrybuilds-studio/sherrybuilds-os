@@ -2,6 +2,7 @@ import SmoothScroll from "@/components/portfolio/SmoothScroll";
 import Ferrofluid from "@/components/portfolio-dark/Ferrofluid";
 import DarkNav from "@/components/portfolio-dark/DarkNav";
 import DarkHero from "@/components/portfolio-dark/DarkHero";
+import DarkProof from "@/components/portfolio-dark/DarkProof";
 
 // DARK GLASS VARIANT (feat/portfolio-dark-glass) — the light editorial
 // version lives on feat/portfolio-v4-hero, untouched.
@@ -20,6 +21,7 @@ export default function Home() {
       <DarkNav />
       <main id="main" className="relative" style={{ zIndex: 1 }}>
         <DarkHero />
+        <DarkProof />
       </main>
     </div>
   );
