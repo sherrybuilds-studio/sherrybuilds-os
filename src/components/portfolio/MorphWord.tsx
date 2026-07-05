@@ -5,7 +5,8 @@ import { gsap, useGSAP, EASE } from "@/lib/gsap";
 
 const WORDS = ["systems", "agents", "pipelines", "infrastructure"];
 const HOLD = 3; // seconds each word stays
-const SWAP = 0.55;
+const OUT = 0.3; // exit — accelerates away
+const IN = 0.45; // enter — soft landing
 
 /**
  * Layout-safe morphing word: the container width tweens to the next word's
@@ -46,12 +47,15 @@ export default function MorphWord() {
         let back = b;
 
         gsap.set(wrap, { width: widthOf(WORDS[0]) });
-        gsap.set(b, { yPercent: 115 });
+        gsap.set(b, { yPercent: 115, autoAlpha: 0 });
 
         const cycle = () => {
           const next = WORDS[(index + 1) % WORDS.length];
           back.textContent = next;
-          gsap.set(back, { yPercent: 115 });
+          // park the incoming word hidden below the mask until the outgoing
+          // word has FULLY left — the two are never visible at once, so
+          // glyphs can't double-expose mid-swap
+          gsap.set(back, { yPercent: 115, autoAlpha: 0 });
 
           gsap
             .timeline({
@@ -61,9 +65,12 @@ export default function MorphWord() {
                 gsap.delayedCall(HOLD, cycle);
               },
             })
-            .to(wrap, { width: widthOf(next), duration: SWAP, ease: EASE }, 0)
-            .to(front, { yPercent: -115, duration: SWAP, ease: EASE }, 0)
-            .to(back, { yPercent: 0, duration: SWAP, ease: EASE }, 0);
+            .to(front, { yPercent: -115, autoAlpha: 0, duration: OUT, ease: "power2.in" }, 0)
+            .set(back, { autoAlpha: 1 }, OUT)
+            // width moves WITH the incoming word — never against a resting
+            // word, so the trailing period stays visually attached
+            .to(wrap, { width: widthOf(next), duration: IN, ease: EASE }, OUT)
+            .to(back, { yPercent: 0, duration: IN, ease: EASE }, OUT);
         };
 
         gsap.delayedCall(HOLD, cycle);

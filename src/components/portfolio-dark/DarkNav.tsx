@@ -15,7 +15,6 @@ const cyanPill: React.CSSProperties = {
   border: "1px solid rgba(34, 211, 238, 0.40)",
   boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.12)",
   color: "var(--text)",
-  transition: "transform var(--dur-ui) var(--ease), box-shadow var(--dur-ui) var(--ease)",
 };
 
 export default function DarkNav() {
@@ -72,17 +71,8 @@ export default function DarkNav() {
         <div className="flex items-center gap-3">
           <a
             href="#contact"
-            className="hidden items-center rounded-full px-5 text-[0.875rem] font-medium md:inline-flex"
+            className="pf-btn hidden items-center rounded-full px-5 text-[0.875rem] font-medium md:inline-flex"
             style={{ ...cyanPill, height: "2.75rem" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-1px)";
-              e.currentTarget.style.boxShadow =
-                "inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 28px -8px rgba(34, 211, 238, 0.45)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "";
-              e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.12)";
-            }}
           >
             Get in touch
           </a>
@@ -139,7 +129,7 @@ export default function DarkNav() {
           <a
             href="#contact"
             onClick={() => setOpen(false)}
-            className="mt-8 inline-flex h-12 w-fit items-center rounded-full px-7 text-[0.95rem] font-medium"
+            className="pf-btn mt-8 inline-flex h-12 w-fit items-center rounded-full px-7 text-[0.95rem] font-medium"
             style={cyanPill}
           >
             Get in touch

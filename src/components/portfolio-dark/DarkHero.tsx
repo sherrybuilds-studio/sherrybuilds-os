@@ -135,7 +135,7 @@ export default function DarkHero() {
             >
               <a
                 href="#work"
-                className="glass inline-flex items-center rounded-full px-7 font-medium"
+                className="glass pf-btn inline-flex items-center rounded-full px-7 font-medium"
                 style={{
                   background:
                     "linear-gradient(180deg, rgba(34, 211, 238, 0.22), rgba(34, 211, 238, 0.10))",
@@ -143,36 +143,18 @@ export default function DarkHero() {
                   color: "var(--text)",
                   height: "3rem",
                   fontSize: "0.95rem",
-                  transition:
-                    "transform var(--dur-ui) var(--ease), box-shadow var(--dur-ui) var(--ease)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow =
-                    "inset 0 1px 0 rgba(255,255,255,0.12), 0 12px 36px -10px rgba(34, 211, 238, 0.45)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "";
-                  e.currentTarget.style.boxShadow = "";
                 }}
               >
                 View work
               </a>
               <a
                 href="#contact"
-                className="glass inline-flex items-center gap-1 rounded-full px-7 font-medium"
+                className="glass pf-btn inline-flex items-center gap-1 rounded-full px-7 font-medium"
                 style={{
                   background: "transparent",
                   color: "var(--text)",
                   height: "3rem",
                   fontSize: "0.95rem",
-                  transition: "border-color var(--dur-ui) var(--ease)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(34, 211, 238, 0.45)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--glass-border)";
                 }}
               >
                 Get in touch <span aria-hidden="true">→</span>
