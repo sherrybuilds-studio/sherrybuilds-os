@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { gsap, useGSAP, EASE, STAGGER } from "@/lib/gsap";
 import MorphWord from "@/components/portfolio/MorphWord";
-import GlassShape from "./GlassShape";
 
 export default function DarkHero() {
   const scope = useRef<HTMLElement>(null);
@@ -25,12 +24,12 @@ export default function DarkHero() {
             { autoAlpha: 1, y: 0, duration: 0.6, stagger: STAGGER },
             "-=0.55"
           )
-          .fromTo(".hero-object", { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.2 }, 0.35);
+;
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
-          [".hero-line-inner", ".hero-chip", ".hero-sub", ".hero-ctas", ".hero-object"],
+          [".hero-line-inner", ".hero-chip", ".hero-sub", ".hero-ctas"],
           { autoAlpha: 1, y: 0, yPercent: 0 }
         );
       });
@@ -44,15 +43,7 @@ export default function DarkHero() {
       ref={scope}
       className="relative flex min-h-[100svh] items-center overflow-hidden"
     >
-      {/* 3D shape slot — centered BEHIND the text, pushed upward so its
-          bright mass halos the top of the headline */}
-      <div
-        className="hero-object pointer-events-none absolute left-1/2 -top-[4%] aspect-square w-[150vw] max-w-none -translate-x-1/2 opacity-70 md:-top-[18%] md:w-[min(74vw,820px)] md:opacity-100"
-        data-reveal=""
-      >
-        <GlassShape />
-      </div>
-
+      {/* No hero object — the ferrofluid background + centered type IS the hero */}
       <div className="relative z-10 mx-auto w-full max-w-[80rem] px-6 lg:px-10">
         <div className="relative mx-auto flex max-w-[52rem] flex-col items-center text-center">
           {/* readability scrim — soft radial dark pool behind the text block */}
