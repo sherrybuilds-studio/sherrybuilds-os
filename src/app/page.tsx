@@ -1,4 +1,5 @@
 import SmoothScroll from "@/components/portfolio/SmoothScroll";
+import LightRays from "@/components/portfolio-dark/LightRays";
 import AmbientGlow from "@/components/portfolio-dark/AmbientGlow";
 import DarkNav from "@/components/portfolio-dark/DarkNav";
 import DarkHero from "@/components/portfolio-dark/DarkHero";
@@ -15,6 +16,8 @@ export default function Home() {
         Skip to content
       </a>
       <SmoothScroll />
+      {/* deepest layer first: rays, then the glow wash, then content */}
+      <LightRays />
       <AmbientGlow />
       <DarkNav />
       <main id="main" className="relative" style={{ zIndex: 1 }}>
