@@ -200,6 +200,13 @@
   scroll-margin-top: calc(var(--nav-height) + var(--space-4));
 }
 
+/* Smooth native anchor scrolling (motion-gated; Lenis drives wheel input) */
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.portfolio) {
+    scroll-behavior: smooth;
+  }
+}
+
 .portfolio ::selection {
   background: var(--accent);
   color: #ffffff;

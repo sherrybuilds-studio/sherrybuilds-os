@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/portfolio/Reveal";
-import { prefersReducedMotion } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP, EASE, prefersReducedMotion } from "@/lib/gsap";
 
 type CaseStudy = {
   index: string;
@@ -147,9 +147,49 @@ function DemoVideo({ name, index, title }: { name: string; index: string; title:
 }
 
 export default function DarkWork() {
+  const scope = useRef<HTMLElement>(null);
+
+  // Card entrances: alternate slide direction (odd from left, even from
+  // right), gentle 40px + fade, then heading -> meta -> body -> metrics
+  // stagger inside. Plays once per card. Reduced motion: no transforms,
+  // everything simply visible.
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.utils.toArray<HTMLElement>(".work-card").forEach((card, i) => {
+          const items = card.querySelectorAll(".work-stagger");
+          gsap.set(card, { autoAlpha: 0, x: i % 2 === 0 ? -40 : 40 });
+          gsap.set(items, { autoAlpha: 0, y: 14 });
+          ScrollTrigger.create({
+            trigger: card,
+            start: "clamp(top 80%)",
+            once: true,
+            onEnter: () =>
+              gsap
+                .timeline()
+                .to(card, { autoAlpha: 1, x: 0, duration: 0.6, ease: EASE })
+                .to(
+                  items,
+                  { autoAlpha: 1, y: 0, duration: 0.45, ease: EASE, stagger: 0.1 },
+                  "-=0.35"
+                ),
+          });
+        });
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set([".work-card", ".work-stagger"], { autoAlpha: 1, x: 0, y: 0 });
+      });
+    },
+    { scope }
+  );
+
   return (
     <section
       id="work"
+      ref={scope}
       aria-labelledby="work-heading"
       data-chapter=""
       className="relative overflow-hidden"
@@ -169,10 +209,10 @@ export default function DarkWork() {
           {CASES.map((c, i) => {
             const flipped = i % 2 === 1;
             return (
-              <Reveal
+              <article
                 key={c.index}
-                as="article"
-                className="glass rounded-3xl"
+                className="work-card glass rounded-3xl"
+                data-reveal=""
               >
                 <div
                   className="grid grid-cols-1 items-center gap-[var(--space-8)] lg:grid-cols-12 lg:gap-[var(--space-12)]"
@@ -182,7 +222,7 @@ export default function DarkWork() {
                   <div className={`lg:col-span-6 ${flipped ? "lg:order-2" : ""}`}>
                     <span style={mono}>{c.index}</span>
                     <h3
-                      className="mt-[var(--space-3)]"
+                      className="work-stagger mt-[var(--space-3)]"
                       style={{
                         fontFamily: "var(--font-display)",
                         fontSize: "var(--step-4)",
@@ -195,11 +235,11 @@ export default function DarkWork() {
                     >
                       {c.title}
                     </h3>
-                    <p className="mt-[var(--space-2)] uppercase" style={mono}>
+                    <p className="work-stagger mt-[var(--space-2)] uppercase" style={mono}>
                       {c.meta}
                     </p>
                     <p
-                      className="mt-[var(--space-6)]"
+                      className="work-stagger mt-[var(--space-6)]"
                       style={{
                         fontSize: "var(--step-0)",
                         lineHeight: 1.65,
@@ -209,7 +249,7 @@ export default function DarkWork() {
                     >
                       {c.description}
                     </p>
-                    <div className="mt-[var(--space-6)] flex flex-wrap items-baseline gap-x-[var(--space-8)] gap-y-[var(--space-3)]">
+                    <div className="work-stagger mt-[var(--space-6)] flex flex-wrap items-baseline gap-x-[var(--space-8)] gap-y-[var(--space-3)]">
                       <span
                         style={{
                           ...mono,
@@ -238,7 +278,7 @@ export default function DarkWork() {
                     <DemoVideo name={c.demo} index={c.index} title={c.title} />
                   </div>
                 </div>
-              </Reveal>
+              </article>
             );
           })}
         </div>
