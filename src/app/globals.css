@@ -290,10 +290,43 @@
    :active covers touch taps; under reduced motion the transition collapses to
    an instant (static) state change via the global guard. */
 .portfolio-dark .pf-btn {
+  position: relative;
+  overflow: hidden; /* contains the shine sweep */
   transition:
     transform var(--dur-ui) var(--ease),
     box-shadow var(--dur-ui) var(--ease),
     border-color var(--dur-ui) var(--ease);
+}
+
+/* diagonal light-sweep: a skewed specular band crosses the surface once
+   per hover-enter; collapses to imperceptible under reduced motion via
+   the global animation guard */
+.portfolio-dark .pf-btn::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.22) 45%, rgba(255, 255, 255, 0.06) 65%, rgba(255, 255, 255, 0) 100%);
+  transform: skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .portfolio-dark .pf-btn:hover::before {
+    animation: pf-btn-shine 0.65s var(--ease);
+  }
+}
+@keyframes pf-btn-shine {
+  0% {
+    left: -60%;
+    opacity: 1;
+  }
+  100% {
+    left: 130%;
+    opacity: 1;
+  }
 }
 @media (hover: hover) {
   .portfolio-dark .pf-btn:hover {

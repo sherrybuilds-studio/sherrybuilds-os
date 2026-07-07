@@ -140,9 +140,10 @@ export default function DarkHero() {
               data-reveal=""
               style={{ fontSize: "var(--step-1)", color: "var(--muted)", lineHeight: 1.55 }}
             >
-              AI Automation Engineer building production LLM systems — RAG
-              pipelines, autonomous agents, full observability. Open to
-              Werkstudent roles in Berlin.
+              I&apos;m an AI Automation Engineer in Berlin. I build production
+              LLM systems that actually ship — RAG pipelines, autonomous
+              agents, and the observability to prove they work. Currently open
+              to Werkstudent roles.
             </p>
 
             {/* CTAs — cyan glass primary, glass-outline secondary */}
