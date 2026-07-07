@@ -1,0 +1,1 @@
+Drop demo recordings here: rag-commerce-agent.mp4, reservation-system.mp4, agent-pipeline.mp4, rag-reference.mp4 (+ optional .jpg posters, same basenames). Slots wired in src/components/portfolio-dark/DarkWork.tsx.
