@@ -23,7 +23,7 @@ const CASES: CaseStudy[] = [
     meta: "Private client · Commerce",
     description:
       "A WhatsApp sales agent that answers in the customer's own language, retrieves product knowledge through RAG, and semantically caches repeat questions. Every response is traced end-to-end in Langfuse.",
-    metric: "94.2% eval · 38% cost reduction",
+    metric: "38% lower cost per message · full Langfuse observability",
     metricAccent: true,
     stack: ["Python", "FastAPI", "ChromaDB", "Claude", "Langfuse"],
     demo: "rag-commerce-agent",
@@ -56,7 +56,7 @@ const CASES: CaseStudy[] = [
     meta: "Public · Reference architecture",
     description:
       "An anonymized reference architecture of the commerce agent — the same retrieval, caching and eval patterns, published as a public repository.",
-    metric: "94.2% eval · public repo",
+    metric: "Public reference architecture · same RAG + caching + eval patterns",
     metricAccent: false, // this row's single accent is the outbound link
     stack: ["Python", "ChromaDB", "FastAPI"],
     demo: "rag-reference",
