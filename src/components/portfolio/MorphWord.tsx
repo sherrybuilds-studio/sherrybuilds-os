@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { gsap, useGSAP, EASE } from "@/lib/gsap";
 
-const WORDS = ["systems", "agents", "pipelines", "infrastructure"];
+const WORDS = ["Systems", "Agents", "Pipelines", "Infrastructure"];
 const HOLD = 3; // seconds each word stays
 const OUT = 0.3; // exit — accelerates away
 const IN = 0.45; // enter — soft landing
@@ -81,7 +81,7 @@ export default function MorphWord() {
 
   return (
     <>
-      <span className="sr-only">systems</span>
+      <span className="sr-only">Systems</span>
       <span
         ref={wrapRef}
         aria-hidden="true"
