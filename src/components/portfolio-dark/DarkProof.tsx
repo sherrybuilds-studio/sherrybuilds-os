@@ -8,6 +8,7 @@ type Metric = {
   value: string; // final display value, also the SSR/reduced-motion state
   suffix?: string;
   caption: string;
+  context: string; // the "so what" — second, quieter line
   accent?: boolean;
 };
 
@@ -16,21 +17,25 @@ const METRICS: Metric[] = [
     value: "94.2",
     suffix: "%",
     caption: "Mean evaluation score, production RAG",
+    context: "10-question gold-standard eval suite",
     accent: true,
   },
   {
     value: "100",
     suffix: "%",
     caption: "Eval pass rate, reservation system",
+    context: "10/10 first-run, booking + waitlist flows",
   },
   {
     value: "38",
     suffix: "%",
     caption: "Token cost reduction (Langfuse-measured)",
+    context: "via semantic caching of repeat queries",
   },
   {
     value: "4",
     caption: "Production AI systems, live & monitored",
+    context: "commerce, booking, pipeline, open-source",
   },
 ];
 
@@ -184,6 +189,19 @@ export default function DarkProof() {
                   style={{ ...mono, maxWidth: "30ch", lineHeight: 1.7 }}
                 >
                   {m.caption}
+                </p>
+                <p
+                  className="mt-[var(--space-1)]"
+                  style={{
+                    fontFamily: "var(--font-label)",
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.05em",
+                    color: "rgba(138, 150, 180, 0.72)",
+                    maxWidth: "34ch",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  › {m.context}
                 </p>
               </Reveal>
             ))}

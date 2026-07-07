@@ -26,47 +26,42 @@ export default function ChapterScroll() {
         const inner =
           sec.querySelector<HTMLElement>("[data-chapter-inner]") ?? sec;
 
-        // outgoing: ONE trigger pins the chapter AND scrubs its settle-back
+        // outgoing: ONE trigger pins the chapter AND scrubs its exit
         // (separate pin + scrub triggers on the same element fight over
-        // measurements — the scrub never advanced)
+        // measurements — the scrub never advanced).
+        // DISJOINT WINDOWS: outgoing text is FULLY gone by 40% of the turn;
+        // incoming text only starts appearing at 60% — at no scroll position
+        // are both chapters' text visible together.
         if (i < chapters.length - 1) {
-          gsap.fromTo(
-            inner,
-            { autoAlpha: 1, scale: 1, yPercent: 0 },
-            {
-              autoAlpha: 0.2,
-              scale: 0.965,
-              yPercent: -4,
-              ease: "none",
-              scrollTrigger: {
-                trigger: sec,
-                start: "bottom bottom",
-                end: "+=60%",
-                scrub: true,
-                pin: sec,
-                pinSpacing: false,
-              },
-            }
-          );
+          const exit = gsap.timeline({
+            scrollTrigger: {
+              trigger: sec,
+              start: "bottom bottom",
+              end: "+=60%",
+              scrub: true,
+              pin: sec,
+              pinSpacing: false,
+            },
+          });
+          exit
+            .to(inner, { autoAlpha: 0, duration: 0.4, ease: "none" }, 0)
+            .to(inner, { scale: 0.96, yPercent: -5, duration: 1, ease: "none" }, 0);
         }
 
-        // incoming: rise the last stretch + fade up to full presence
+        // incoming: rises through the whole window, but its opacity holds
+        // at 0 until 60% — it reads only after the previous chapter is gone
         if (i > 0) {
-          gsap.fromTo(
-            inner,
-            { yPercent: 8, autoAlpha: 0 },
-            {
-              yPercent: 0,
-              autoAlpha: 1,
-              ease: "none",
-              scrollTrigger: {
-                trigger: sec,
-                start: "top bottom",
-                end: "top 35%",
-                scrub: 0.5,
-              },
-            }
-          );
+          const enter = gsap.timeline({
+            scrollTrigger: {
+              trigger: sec,
+              start: "top bottom",
+              end: "top 35%",
+              scrub: 0.5,
+            },
+          });
+          enter
+            .fromTo(inner, { yPercent: 8 }, { yPercent: 0, duration: 1, ease: "none" }, 0)
+            .fromTo(inner, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: "none" }, 0.6);
         }
       });
     });
