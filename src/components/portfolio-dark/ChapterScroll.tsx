@@ -48,20 +48,24 @@ export default function ChapterScroll() {
             .to(inner, { scale: 0.96, yPercent: -5, duration: 1, ease: "none" }, 0);
         }
 
-        // incoming: rises through the whole window, but its opacity holds
-        // at 0 until 60% — it reads only after the previous chapter is gone
+        // incoming: opacity holds at 0 until 60% of the window, then fades
+        // to full — it reads only after the previous chapter is gone.
+        // CONFLICT RULE: the entrance animates ONLY the section element and
+        // uses scrub:true. A middle chapter has an entrance (this) AND an
+        // exit (above) — with scrub lag or a shared target, the entrance's
+        // late writes race the exit's fade and both chapters show at once.
         if (i > 0) {
           const enter = gsap.timeline({
             scrollTrigger: {
               trigger: sec,
               start: "top bottom",
               end: "top 35%",
-              scrub: 0.5,
+              scrub: true,
             },
           });
           enter
-            .fromTo(inner, { yPercent: 8 }, { yPercent: 0, duration: 1, ease: "none" }, 0)
-            .fromTo(inner, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: "none" }, 0.6);
+            .fromTo(sec, { opacity: 0 }, { opacity: 0, duration: 0.6, ease: "none" }, 0)
+            .to(sec, { opacity: 1, duration: 0.4, ease: "none" }, 0.6);
         }
       });
     });
