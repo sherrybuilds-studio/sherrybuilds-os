@@ -414,6 +414,27 @@
   }
 }
 
+/* How I Build — step panels: active = cyan number, thin cyan left border,
+   slight scale-up. Transform via class works because the entrance tween
+   clears its inline transform on complete. */
+.portfolio-dark .hib-panel {
+  border-left: 2px solid transparent;
+  transition:
+    border-color var(--dur-ui) var(--ease),
+    transform var(--dur-ui) var(--ease);
+}
+.portfolio-dark .hib-panel .hib-num {
+  color: var(--muted);
+  transition: color var(--dur-ui) var(--ease);
+}
+.portfolio-dark .hib-panel.is-active {
+  border-left-color: var(--accent);
+  transform: scale(1.02);
+}
+.portfolio-dark .hib-panel.is-active .hib-num {
+  color: var(--accent);
+}
+
 /* Work cards share the shine, staggered so they never flash in sync */
 .portfolio-dark .work-card {
   position: relative;
