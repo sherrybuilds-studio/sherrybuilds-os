@@ -22,8 +22,8 @@ const GROUPS: Group[] = [
   },
   {
     label: "Data & infra",
-    tools: ["Supabase", "PostgreSQL", "Docker", "PM2", "Cloudflare"],
-    duration: 38,
+    tools: ["Supabase", "PostgreSQL", "Docker", "PM2", "Cloudflare", "Caddy", "Tailscale", "Backblaze"],
+    duration: 42,
   },
   {
     label: "Observability",
@@ -50,21 +50,7 @@ const mono: React.CSSProperties = {
 
 function Pill({ tool }: { tool: string }) {
   const accent = ACCENT_TOOLS.has(tool);
-  return (
-    <span
-      className="whitespace-nowrap rounded-full border"
-      style={{
-        padding: "0.55rem 1.1rem",
-        fontSize: "0.9rem",
-        fontWeight: 450,
-        background: "var(--surface)",
-        borderColor: accent ? "rgba(34, 211, 238, 0.4)" : "var(--glass-border)",
-        color: accent ? "var(--accent-ink)" : "var(--text)",
-      }}
-    >
-      {tool}
-    </span>
-  );
+  return <span className={`pf-pill${accent ? " pf-pill--accent" : ""}`}>{tool}</span>;
 }
 
 function MarqueeRow({ group }: { group: Group }) {
@@ -73,7 +59,7 @@ function MarqueeRow({ group }: { group: Group }) {
   const pills = Array.from({ length: repeats }, () => group.tools).flat();
 
   return (
-    <div className="flex flex-col gap-y-[var(--space-3)] py-[var(--space-5)] md:flex-row md:items-center">
+    <div className="flex flex-col gap-y-[var(--space-4)] py-[var(--space-8)] md:flex-row md:items-center md:py-[var(--space-8)]">
       <span className="flex-none uppercase md:w-[13rem]" style={mono}>
         {group.label}
         {/* static list for screen readers — the marquee is decorative motion */}
@@ -144,7 +130,7 @@ export default function DarkStack() {
         {/* Five continuous marquees, alternating direction, in one panel */}
         <div
           className="glass mx-auto mt-[var(--space-16)] max-w-[72rem] rounded-3xl lg:mt-[var(--space-24)]"
-          style={{ padding: "clamp(1.25rem, 3.5vw, 2.5rem)" }}
+          style={{ padding: "clamp(1.5rem, 4vw, 2.75rem)" }}
         >
           {GROUPS.map((g, i) => (
             <Reveal key={g.label} delay={i * 0.06} className={i > 0 ? "border-t" : ""}>
