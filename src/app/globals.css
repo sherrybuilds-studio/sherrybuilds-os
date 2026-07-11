@@ -414,6 +414,68 @@
   }
 }
 
+/* ── Traveling border glow — shared treatment for ALL glass cards ──
+   Apply .glass-glow to any glass card (Work cards, How-I-Build panels,
+   Stack panel, future About/Contact cards). The Proof panel gets the same
+   light via its .glass-liquid rim ring below. NOT for chips/buttons/pills
+   (they have their own glow language). Entirely gated behind
+   no-preference: reduced motion sees no ring at all (a frozen arc would
+   read as a rendering bug). */
+@property --pf-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .portfolio-dark .glass-glow {
+    position: relative;
+  }
+  .portfolio-dark .glass-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(from var(--pf-border-angle), transparent 0deg, rgba(34, 211, 238, 0.4) 30deg, rgba(34, 211, 238, 0.12) 62deg, transparent 95deg);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: pf-border-spin 9s linear infinite;
+    pointer-events: none;
+  }
+  /* Proof panel: same traveling light layered over its static rim */
+  .portfolio-dark .glass-liquid::before {
+    background: conic-gradient(from var(--pf-border-angle), transparent 0deg, rgba(34, 211, 238, 0.35) 30deg, rgba(34, 211, 238, 0.1) 62deg, transparent 95deg), linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.02) 55%, rgba(4, 7, 14, 0.65) 100%);
+    animation: pf-border-spin 9s linear infinite;
+  }
+  /* de-sync neighboring cards */
+  .portfolio-dark .work-card:nth-of-type(2)::before {
+    animation-delay: -2.2s;
+  }
+  .portfolio-dark .work-card:nth-of-type(3)::before {
+    animation-delay: -4.4s;
+  }
+  .portfolio-dark .work-card:nth-of-type(4)::before {
+    animation-delay: -6.6s;
+  }
+  .portfolio-dark .hib-panel:nth-of-type(2)::before {
+    animation-delay: -3s;
+  }
+  .portfolio-dark .hib-panel:nth-of-type(3)::before {
+    animation-delay: -6s;
+  }
+  .portfolio-dark .hib-panel:nth-of-type(4)::before {
+    animation-delay: -1.5s;
+  }
+}
+@keyframes pf-border-spin {
+  to {
+    --pf-border-angle: 360deg;
+  }
+}
+
 /* How I Build — step panels: active = cyan number, thin cyan left border,
    slight scale-up. Transform via class works because the entrance tween
    clears its inline transform on complete. */

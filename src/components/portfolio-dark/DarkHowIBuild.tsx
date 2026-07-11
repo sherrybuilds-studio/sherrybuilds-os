@@ -203,7 +203,7 @@ export default function DarkHowIBuild() {
                 <li
                   key={s.title}
                   data-reveal=""
-                  className="hib-panel glass rounded-2xl"
+                  className="hib-panel glass glass-glow rounded-2xl"
                   style={{ padding: "clamp(1.5rem, 4vw, 2.25rem)" }}
                 >
                   <span

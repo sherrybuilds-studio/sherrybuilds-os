@@ -216,7 +216,7 @@ export default function DarkWork() {
             return (
               <article
                 key={c.index}
-                className="work-card glass rounded-3xl"
+                className="work-card glass glass-glow rounded-3xl"
                 data-reveal=""
               >
                 <div

@@ -129,7 +129,7 @@ export default function DarkStack() {
 
         {/* Five continuous marquees, alternating direction, in one panel */}
         <div
-          className="glass mx-auto mt-[var(--space-16)] max-w-[72rem] rounded-3xl lg:mt-[var(--space-24)]"
+          className="glass glass-glow mx-auto mt-[var(--space-16)] max-w-[72rem] rounded-3xl lg:mt-[var(--space-24)]"
           style={{ padding: "clamp(1.5rem, 4vw, 2.75rem)" }}
         >
           {GROUPS.map((g, i) => (
