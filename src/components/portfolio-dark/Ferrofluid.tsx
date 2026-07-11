@@ -166,8 +166,11 @@ export default function Ferrofluid() {
     const uScroll = gl.getUniformLocation(prog, "uScroll");
     const uMoment = gl.getUniformLocation(prog, "uMoment");
 
-    gl.uniform1f(uIntensity, mobile ? 0.18 : 0.3);
-    gl.uniform1f(uDetail, mobile ? 1 : 2);
+    // Mobile matches desktop richness: full 3-tier detail + near-equal
+    // intensity. Affordable because the phone canvas has ~4x fewer pixels
+    // than desktop even at 1.5x DPR (562x1218 vs 1440x900).
+    gl.uniform1f(uIntensity, mobile ? 0.28 : 0.3);
+    gl.uniform1f(uDetail, 2);
     gl.uniform1f(uScroll, 0);
     gl.uniform1f(uMoment, 0);
 
@@ -180,9 +183,13 @@ export default function Ferrofluid() {
     };
     if (!reduced) window.addEventListener("scroll", onScroll, { passive: true });
 
+    // Desktop: DPR 1 (large area, soft glow — extra pixels buy nothing).
+    // Mobile: up to 1.5x DPR so filaments stay crisp on 3x phone screens
+    // instead of reading washed-out from upscaling.
+    const dpr = mobile ? Math.min(1.5, window.devicePixelRatio || 1) : 1;
     const resize = () => {
-      canvas.width = canvas.clientWidth; // DPR 1 — soft background
-      canvas.height = canvas.clientHeight;
+      canvas.width = Math.round(canvas.clientWidth * dpr);
+      canvas.height = Math.round(canvas.clientHeight * dpr);
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(uRes, canvas.width, canvas.height);
     };

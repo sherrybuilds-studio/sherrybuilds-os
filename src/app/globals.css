@@ -393,17 +393,62 @@
   border-radius: inherit;
   background: linear-gradient(115deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0) 62%), radial-gradient(55% 45% at 90% 94%, rgba(34, 211, 238, 0.09), transparent 70%);
   background-size: 260% 100%, 100% 100%;
-  background-position: 120% 0, 0 0;
-  animation: pf-sheen-slide 14s ease-in-out infinite alternate;
+  background-position: -80% 0, 0 0;
+  animation: pf-glass-shine 6s linear infinite;
   pointer-events: none;
 }
 
-@keyframes pf-sheen-slide {
-  from {
-    background-position: 120% 0, 0 0;
+/* periodic shine: a ~1.5s sweep, then the band rests off-surface for the
+   remainder of the cycle. Under reduced motion the global guard collapses
+   this to a single instant run ending off-surface — no auto-shine. */
+@keyframes pf-glass-shine {
+  0% {
+    background-position: -80% 0, 0 0;
+    animation-timing-function: cubic-bezier(0.33, 0, 0.35, 1);
   }
-  to {
-    background-position: -20% 0, 0 0;
+  25% {
+    background-position: 180% 0, 0 0;
+  }
+  100% {
+    background-position: 180% 0, 0 0;
+  }
+}
+
+/* Work cards share the shine, staggered so they never flash in sync */
+.portfolio-dark .work-card {
+  position: relative;
+  overflow: hidden;
+}
+.portfolio-dark .work-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0) 32%, rgba(255, 255, 255, 0.07) 43%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0) 60%);
+  background-size: 260% 100%;
+  background-position: -80% 0;
+  animation: pf-glass-shine-solo 5.5s linear infinite;
+  pointer-events: none;
+}
+.portfolio-dark .work-card:nth-of-type(2)::after {
+  animation-delay: 1.4s;
+}
+.portfolio-dark .work-card:nth-of-type(3)::after {
+  animation-delay: 2.8s;
+}
+.portfolio-dark .work-card:nth-of-type(4)::after {
+  animation-delay: 4.2s;
+}
+@keyframes pf-glass-shine-solo {
+  0% {
+    background-position: -80% 0;
+    animation-timing-function: cubic-bezier(0.33, 0, 0.35, 1);
+  }
+  27% {
+    background-position: 180% 0;
+  }
+  100% {
+    background-position: 180% 0;
   }
 }
 
