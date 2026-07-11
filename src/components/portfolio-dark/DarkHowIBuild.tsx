@@ -145,10 +145,9 @@ export default function DarkHowIBuild() {
         <div className="grid grid-cols-1 gap-y-[var(--space-12)] lg:grid-cols-12 lg:gap-x-[var(--space-8)]">
           {/* LEFT — sticky headline column */}
           <div className="lg:col-span-5">
-            <div
-              className="relative lg:sticky"
-              style={{ top: "calc(var(--nav-height) + var(--space-16))" }}
-            >
+            {/* top offset is lg-only: on mobile this block is static in flow —
+                a relative `top` here visually shifted it over the first card */}
+            <div className="relative lg:sticky lg:top-[calc(var(--nav-height)+var(--space-16))]">
               <div
                 aria-hidden="true"
                 className="absolute -z-10"
