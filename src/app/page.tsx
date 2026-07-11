@@ -4,6 +4,7 @@ import DarkNav from "@/components/portfolio-dark/DarkNav";
 import DarkHero from "@/components/portfolio-dark/DarkHero";
 import DarkProof from "@/components/portfolio-dark/DarkProof";
 import DarkWork from "@/components/portfolio-dark/DarkWork";
+import DarkHowIBuild from "@/components/portfolio-dark/DarkHowIBuild";
 import ChapterScroll from "@/components/portfolio-dark/ChapterScroll";
 
 // DARK GLASS VARIANT (feat/portfolio-dark-glass) — the light editorial
@@ -25,6 +26,7 @@ export default function Home() {
         <DarkHero />
         <DarkProof />
         <DarkWork />
+        <DarkHowIBuild />
         <ChapterScroll />
       </main>
     </div>
