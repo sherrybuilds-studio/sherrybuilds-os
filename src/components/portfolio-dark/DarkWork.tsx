@@ -16,14 +16,16 @@ type CaseStudy = {
   link?: { label: string; href: string };
 };
 
+// VERIFY: humanized copy below supplied by Sherry (2026-07-09) — confirm
+// wording reads true before any public deploy.
 const CASES: CaseStudy[] = [
   {
     index: "01",
     title: "Multilingual RAG Commerce Agent",
     meta: "Private client · Commerce",
     description:
-      "A WhatsApp sales agent that answers in the customer's own language, retrieves product knowledge through RAG, and semantically caches repeat questions. Every response is traced end-to-end in Langfuse.",
-    metric: "38% lower cost per message · full Langfuse observability",
+      "The hard part was answering accurately across English, Urdu, and Roman Urdu from one knowledge base — a hybrid RAG pipeline with semantic caching, every response traced in Langfuse.",
+    metric: "38% lower cost per message · full observability",
     metricAccent: true,
     stack: ["Python", "FastAPI", "ChromaDB", "Claude", "Langfuse"],
     demo: "rag-commerce-agent",
@@ -33,7 +35,7 @@ const CASES: CaseStudy[] = [
     title: "Reservation System",
     meta: "Hospitality · Booking platform",
     description:
-      "A WhatsApp booking and waitlist platform with a reservations and analytics pipeline behind it. Evaluated before launch — it passed on the first run.",
+      "Restaurants lose bookings after hours and to no-shows — this WhatsApp agent takes reservations and runs a waitlist 24/7, the full flow verified before launch.",
     metric: "100% first-run eval",
     metricAccent: true,
     stack: ["Python", "FastAPI", "Supabase", "WhatsApp Cloud API"],
@@ -44,7 +46,7 @@ const CASES: CaseStudy[] = [
     title: "Autonomous Agent Pipeline",
     meta: "Self-built · Automation",
     description:
-      "A self-running opportunity pipeline: scrape, score, generate, track, notify. It wakes on schedule, finishes without supervision, and reports what it did.",
+      "I was filtering opportunities by hand every day, so I automated the whole loop — scrape, score, generate, track, notify — running on its own each morning.",
     metric: "Runs daily · zero human input",
     metricAccent: true,
     stack: ["Python", "Claude", "Supabase", "cron"],
@@ -55,8 +57,8 @@ const CASES: CaseStudy[] = [
     title: "Open-Source RAG Reference",
     meta: "Public · Reference architecture",
     description:
-      "An anonymized reference architecture of the commerce agent — the same retrieval, caching and eval patterns, published as a public repository.",
-    metric: "Public reference architecture · same RAG + caching + eval patterns",
+      "An anonymized version of the commerce agent — same RAG, caching, and eval patterns, public and inspectable, with no client data.",
+    metric: "Public reference",
     metricAccent: false, // this row's single accent is the outbound link
     stack: ["Python", "ChromaDB", "FastAPI"],
     demo: "rag-reference",
@@ -84,21 +86,26 @@ const mono: React.CSSProperties = {
 function DemoVideo({ name, index, title }: { name: string; index: string; title: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false); // real footage loaded
-  const [reduced] = useState(prefersReducedMotion);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || reduced) return;
+    if (!video) return;
+    // NOTE: the <video> always renders (conditional DOM here caused an SSR
+    // hydration mismatch under reduced motion) — playback alone is gated,
+    // checked LIVE so an OS toggle takes effect without reload.
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) video.play().catch(() => {});
-        else video.pause();
+        if (entry.isIntersecting && !prefersReducedMotion()) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
       },
       { threshold: 0.25 }
     );
     io.observe(video);
     return () => io.disconnect();
-  }, [reduced]);
+  }, []);
 
   return (
     <div
@@ -128,20 +135,18 @@ function DemoVideo({ name, index, title }: { name: string; index: string; title:
         </span>
       </div>
 
-      {!reduced && (
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover transition-opacity"
-          style={{ opacity: ready ? 1 : 0, transitionDuration: "var(--dur-ui)" }}
-          src={`/demos/${name}.mp4`}
-          poster={`/demos/${name}.jpg`}
-          muted
-          loop
-          playsInline
-          preload="none"
-          onLoadedData={() => setReady(true)}
-        />
-      )}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 h-full w-full object-cover transition-opacity"
+        style={{ opacity: ready ? 1 : 0, transitionDuration: "var(--dur-ui)" }}
+        src={`/demos/${name}.mp4`}
+        poster={`/demos/${name}.jpg`}
+        muted
+        loop
+        playsInline
+        preload="none"
+        onLoadedData={() => setReady(true)}
+      />
     </div>
   );
 }
@@ -215,8 +220,8 @@ export default function DarkWork() {
                 data-reveal=""
               >
                 <div
-                  className="grid grid-cols-1 items-center gap-[var(--space-8)] lg:grid-cols-12 lg:gap-[var(--space-12)]"
-                  style={{ padding: "clamp(1.5rem, 4vw, 3rem)" }}
+                  className="grid grid-cols-1 items-center gap-[var(--space-12)] lg:grid-cols-12 lg:gap-[var(--space-12)]"
+                  style={{ padding: "clamp(2rem, 6vw, 3rem)" }}
                 >
                   {/* text */}
                   <div className={`lg:col-span-6 ${flipped ? "lg:order-2" : ""}`}>

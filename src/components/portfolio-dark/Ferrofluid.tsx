@@ -25,6 +25,7 @@ uniform vec2 uRes;
 uniform float uIntensity;
 uniform float uDetail;
 uniform float uScroll; /* 0..1 page progress — depth as you move through */
+uniform float uMoment; /* sin(uScroll*PI): each section = a different moment */
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
@@ -64,44 +65,50 @@ void main() {
   vec3 cyan = vec3(0.133, 0.827, 0.933);  /* --accent   #22D3EE */
   vec3 hot  = vec3(0.62, 0.94, 1.0);      /* near-white cyan for cores */
 
+  /* section "moment": core hue eases cyan -> deeper blue mid-page and
+     back; halos counter-shift slightly, so each chapter has its own
+     temperature inside one continuous space */
+  vec3 coreCol = mix(cyan, blue * 1.15, uMoment * 0.4);
+  vec3 haloCol = mix(blue * 0.8, cyan * 0.85, uMoment * 0.3);
+
   float glow = 0.0;
   vec3 col = vec3(0.0);
 
   // FAR tier — broad, dim blue masses (depth base)
   {
     float r = ridge(fbm(p * 0.7 + warp * 1.2, t * 0.7));
-    float halo = pow(smoothstep(0.5, 1.0, r), 2.0) * 0.3;
+    float halo = pow(smoothstep(0.5, 1.0, r), 2.0) * 0.26;
     glow += halo;
-    col += blue * 0.55 * halo;
+    col += blue * 0.5 * halo;
   }
 
-  // MID tier — main tendrils: bright cyan core + soft blue bloom
+  // MID tier — main tendrils: bright core + wide soft bloom
   {
     float r = ridge(fbm(p * 1.15 + warp * 1.7, t));
-    float core = pow(smoothstep(0.74, 1.0, r), 5.0) * 0.95;
-    float halo = pow(smoothstep(0.48, 1.0, r), 2.2) * 0.5;
-    glow += core + halo;
-    col += cyan * core + blue * 0.8 * halo;
+    float core = pow(smoothstep(0.74, 1.0, r), 5.0) * 1.05;
+    float bloom = pow(smoothstep(0.42, 1.0, r), 2.0) * 0.55;
+    glow += core + bloom;
+    col += coreCol * core + haloCol * bloom;
   }
 
   // NEAR tier — thin hot filaments (desktop only): brightest, closest
   if (uDetail > 1.5) {
     float r = ridge(fbm(p * 2.4 - warp * 1.3, t * 1.3));
-    float core = pow(smoothstep(0.78, 1.0, r), 6.0) * 1.1;
-    float halo = pow(smoothstep(0.55, 1.0, r), 2.5) * 0.32;
+    float core = pow(smoothstep(0.78, 1.0, r), 6.0) * 1.25;
+    float halo = pow(smoothstep(0.55, 1.0, r), 2.5) * 0.34;
     glow += core + halo;
-    col += mix(cyan, hot, 0.5) * core + cyan * 0.7 * halo;
+    col += mix(coreCol, hot, 0.5) * core + cyan * 0.7 * halo;
   }
 
-  // vignette — navy deepens toward the edges so the glow pops centrally
+  // vignette — navy deepens harder toward the edges; lit center = gloss
   vec2 cuv = uv - 0.5;
   cuv.x *= uRes.x / uRes.y;
-  float vig = mix(0.45, 1.0, smoothstep(1.15, 0.25, length(cuv)));
+  float vig = mix(0.36, 1.0, smoothstep(1.2, 0.22, length(cuv)));
   glow *= vig;
   col *= vig;
 
-  // fluid warms slightly as you go deeper into the page
-  float k = uIntensity * (1.0 + 0.15 * uScroll);
+  // deeper into the page = slightly warmer + a lift at each moment peak
+  float k = uIntensity * (1.0 + 0.15 * uScroll) * (1.0 + 0.06 * uMoment);
   float alpha = clamp(glow, 0.0, 1.0) * k;
   gl_FragColor = vec4(col * k, alpha); /* premultiplied */
 }
@@ -157,10 +164,12 @@ export default function Ferrofluid() {
     const uIntensity = gl.getUniformLocation(prog, "uIntensity");
     const uDetail = gl.getUniformLocation(prog, "uDetail");
     const uScroll = gl.getUniformLocation(prog, "uScroll");
+    const uMoment = gl.getUniformLocation(prog, "uMoment");
 
     gl.uniform1f(uIntensity, mobile ? 0.18 : 0.3);
     gl.uniform1f(uDetail, mobile ? 1 : 2);
     gl.uniform1f(uScroll, 0);
+    gl.uniform1f(uMoment, 0);
 
     // page progress → shader depth (skipped under reduced motion)
     let scrollTarget = 0;
@@ -180,11 +189,27 @@ export default function Ferrofluid() {
     resize();
     window.addEventListener("resize", resize);
 
+    // Flow phase is INTEGRATED (not raw time) so speed can ease with scroll
+    // and breathe organically without time-jumps.
+    let phase = 40; // also the static frame for reduced motion
+    let lastT: number | null = null;
+
     const draw = (timeSec: number) => {
       // eased follow so the depth shift glides with Lenis, never snaps
       scrollCurrent += (scrollTarget - scrollCurrent) * 0.06;
+      const moment = Math.sin(Math.min(Math.max(scrollCurrent, 0), 1) * Math.PI);
+
+      const dt = lastT === null ? 0 : Math.min(timeSec - lastT, 0.1);
+      lastT = timeSec;
+      // organic breathing (slow irregular pulse) + gentle per-moment easing —
+      // "more alive", never simply faster
+      const speed =
+        1.0 + 0.18 * moment + 0.1 * Math.sin(timeSec * 0.13) + 0.05 * Math.sin(timeSec * 0.041);
+      phase += dt * speed;
+
       gl.uniform1f(uScroll, scrollCurrent);
-      gl.uniform1f(uTime, timeSec);
+      gl.uniform1f(uMoment, moment);
+      gl.uniform1f(uTime, phase);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
