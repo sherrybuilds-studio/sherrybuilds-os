@@ -1,27 +1,45 @@
 import Reveal from "@/components/portfolio/Reveal";
 
-const GROUPS = [
+type Group = {
+  label: string;
+  tools: string[];
+  /** seconds per loop — slow reads premium */
+  duration: number;
+  reverse?: boolean;
+};
+
+const GROUPS: Group[] = [
   {
     label: "Languages & frameworks",
     tools: ["Python", "FastAPI", "TypeScript", "Next.js"],
+    duration: 40,
   },
   {
     label: "AI & RAG",
     tools: ["Claude", "ChromaDB", "semantic caching", "RAG pipelines"],
+    duration: 44,
+    reverse: true,
   },
   {
     label: "Data & infra",
     tools: ["Supabase", "PostgreSQL", "Docker", "PM2", "Cloudflare"],
+    duration: 38,
   },
   {
     label: "Observability",
     tools: ["Langfuse", "evaluation suites"],
+    duration: 32,
+    reverse: true,
   },
   {
     label: "Automation",
     tools: ["n8n", "WhatsApp Cloud API", "cron"],
+    duration: 36,
   },
 ];
+
+// cyan used sparingly — exactly two keystone tools across all rows
+const ACCENT_TOOLS = new Set(["Claude", "Langfuse"]);
 
 const mono: React.CSSProperties = {
   fontFamily: "var(--font-label)",
@@ -29,6 +47,57 @@ const mono: React.CSSProperties = {
   letterSpacing: "0.08em",
   color: "var(--muted)",
 };
+
+function Pill({ tool }: { tool: string }) {
+  const accent = ACCENT_TOOLS.has(tool);
+  return (
+    <span
+      className="whitespace-nowrap rounded-full border"
+      style={{
+        padding: "0.55rem 1.1rem",
+        fontSize: "0.9rem",
+        fontWeight: 450,
+        background: "var(--surface)",
+        borderColor: accent ? "rgba(34, 211, 238, 0.4)" : "var(--glass-border)",
+        color: accent ? "var(--accent-ink)" : "var(--text)",
+      }}
+    >
+      {tool}
+    </span>
+  );
+}
+
+function MarqueeRow({ group }: { group: Group }) {
+  // enough pills per group to always exceed the viewport width
+  const repeats = Math.ceil(10 / group.tools.length);
+  const pills = Array.from({ length: repeats }, () => group.tools).flat();
+
+  return (
+    <div className="flex flex-col gap-y-[var(--space-3)] py-[var(--space-5)] md:flex-row md:items-center">
+      <span className="flex-none uppercase md:w-[13rem]" style={mono}>
+        {group.label}
+        {/* static list for screen readers — the marquee is decorative motion */}
+        <span className="sr-only">: {group.tools.join(", ")}</span>
+      </span>
+      <div
+        className="pf-marquee min-w-0 flex-1"
+        data-dir={group.reverse ? "reverse" : "forward"}
+        aria-hidden="true"
+        style={{ "--marquee-dur": `${group.duration}s` } as React.CSSProperties}
+      >
+        <div className="pf-marquee-track">
+          {[0, 1].map((copy) => (
+            <div className="pf-marquee-group" key={copy}>
+              {pills.map((t, i) => (
+                <Pill key={`${copy}-${i}`} tool={t} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function DarkStack() {
   return (
@@ -72,38 +141,14 @@ export default function DarkStack() {
           </Reveal>
         </div>
 
-        {/* Categories — clean text rows in one restrained glass panel */}
+        {/* Five continuous marquees, alternating direction, in one panel */}
         <div
-          className="glass mx-auto mt-[var(--space-16)] max-w-[64rem] rounded-3xl lg:mt-[var(--space-24)]"
-          style={{ padding: "clamp(1.5rem, 4vw, 3rem)" }}
+          className="glass mx-auto mt-[var(--space-16)] max-w-[72rem] rounded-3xl lg:mt-[var(--space-24)]"
+          style={{ padding: "clamp(1.25rem, 3.5vw, 2.5rem)" }}
         >
           {GROUPS.map((g, i) => (
             <Reveal key={g.label} delay={i * 0.06} className={i > 0 ? "border-t" : ""}>
-              <div className="grid grid-cols-1 gap-y-[var(--space-2)] py-[var(--space-6)] md:grid-cols-12 md:items-baseline md:gap-x-[var(--space-8)]">
-                <span className="uppercase md:col-span-4" style={mono}>
-                  {g.label}
-                </span>
-                <p
-                  className="md:col-span-8"
-                  style={{
-                    fontSize: "var(--step-1)",
-                    lineHeight: 1.6,
-                    color: "var(--text)",
-                    fontWeight: 450,
-                  }}
-                >
-                  {g.tools.map((t, j) => (
-                    <span key={t}>
-                      {t}
-                      {j < g.tools.length - 1 && (
-                        <span aria-hidden="true" style={{ color: "var(--muted)" }}>
-                          {" · "}
-                        </span>
-                      )}
-                    </span>
-                  ))}
-                </p>
-              </div>
+              <MarqueeRow group={g} />
             </Reveal>
           ))}
         </div>
