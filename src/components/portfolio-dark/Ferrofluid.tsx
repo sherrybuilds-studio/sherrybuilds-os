@@ -24,8 +24,13 @@ uniform float uTime;
 uniform vec2 uRes;
 uniform float uIntensity;
 uniform float uDetail;
-uniform float uScroll; /* 0..1 page progress — depth as you move through */
-uniform float uMoment; /* sin(uScroll*PI): each section = a different moment */
+uniform float uScroll; /* 0..1 page progress — camera depth (pan + zoom) */
+/* per-section mood, all eased in JS between the 7 chapter states so the
+   ONE shader morphs continuously through moods (never a hard cut): */
+uniform float uCyan;   /* cyan mix in the tendrils (glow warmth) */
+uniform float uTurb;   /* domain-warp amount — churn / chaos */
+uniform float uWarm;   /* shift toward indigo for the About settle */
+uniform float uBright; /* overall intensity */
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
@@ -56,20 +61,21 @@ void main() {
   vec2 p = vec2(uv.x * uRes.x / uRes.y, uv.y) * (1.4 + 0.18 * uScroll);
   p += vec2(uScroll * 0.3, uScroll * 0.85);
 
-  float t = uTime * 0.05; // continuous, slow
+  float t = uTime * 0.05; // continuous, slow (flow SPEED eased in JS via uTime)
 
-  // domain warp — the "magnetic" flow
-  vec2 warp = vec2(fbm(p + vec2(0.0, 3.7), t), fbm(p + vec2(5.2, 1.3), t * 0.85));
+  // domain warp — the "magnetic" flow; uTurb drives churn per section
+  vec2 warp = vec2(fbm(p + vec2(0.0, 3.7), t), fbm(p + vec2(5.2, 1.3), t * 0.85)) * uTurb;
 
   vec3 blue = vec3(0.231, 0.51, 0.965);   /* --accent-2 #3B82F6 */
   vec3 cyan = vec3(0.133, 0.827, 0.933);  /* --accent   #22D3EE */
   vec3 hot  = vec3(0.62, 0.94, 1.0);      /* near-white cyan for cores */
+  vec3 warm = vec3(0.42, 0.40, 0.92);     /* indigo — the About settle */
 
-  /* section "moment": core hue eases cyan -> deeper blue mid-page and
-     back; halos counter-shift slightly, so each chapter has its own
-     temperature inside one continuous space */
-  vec3 coreCol = mix(cyan, blue * 1.15, uMoment * 0.4);
-  vec3 haloCol = mix(blue * 0.8, cyan * 0.85, uMoment * 0.3);
+  /* tendril colour eased per section: more cyan where uCyan is high,
+     shifting toward indigo where uWarm is high (About). One continuous
+     morph, no hard cuts. */
+  vec3 coreCol = mix(mix(blue * 1.05, cyan, uCyan), warm, uWarm);
+  vec3 haloCol = mix(mix(blue * 0.8, cyan * 0.85, uCyan * 0.7), warm * 0.7, uWarm);
 
   float glow = 0.0;
   vec3 col = vec3(0.0);
@@ -107,8 +113,8 @@ void main() {
   glow *= vig;
   col *= vig;
 
-  // deeper into the page = slightly warmer + a lift at each moment peak
-  float k = uIntensity * (1.0 + 0.15 * uScroll) * (1.0 + 0.06 * uMoment);
+  // depth lift with scroll, brightness eased per section
+  float k = uIntensity * (1.0 + 0.15 * uScroll) * uBright;
   float alpha = clamp(glow, 0.0, 1.0) * k;
   gl_FragColor = vec4(col * k, alpha); /* premultiplied */
 }
@@ -164,7 +170,10 @@ export default function Ferrofluid() {
     const uIntensity = gl.getUniformLocation(prog, "uIntensity");
     const uDetail = gl.getUniformLocation(prog, "uDetail");
     const uScroll = gl.getUniformLocation(prog, "uScroll");
-    const uMoment = gl.getUniformLocation(prog, "uMoment");
+    const uCyan = gl.getUniformLocation(prog, "uCyan");
+    const uTurb = gl.getUniformLocation(prog, "uTurb");
+    const uWarm = gl.getUniformLocation(prog, "uWarm");
+    const uBright = gl.getUniformLocation(prog, "uBright");
 
     // Mobile matches desktop richness: full 3-tier detail + near-equal
     // intensity. Affordable because the phone canvas has ~4x fewer pixels
@@ -172,7 +181,26 @@ export default function Ferrofluid() {
     gl.uniform1f(uIntensity, mobile ? 0.28 : 0.3);
     gl.uniform1f(uDetail, 2);
     gl.uniform1f(uScroll, 0);
-    gl.uniform1f(uMoment, 0);
+
+    // ── PER-SECTION MOOD STATES ──────────────────────────────────────────
+    // [flow speed, cyan mix, turbulence, warm(indigo), brightness].
+    // Order matches the 7 [data-chapter] sections top→bottom. The live
+    // values ease toward the section under the viewport centre, so the ONE
+    // shader morphs continuously through these moods and reverses cleanly.
+    const MOODS = [
+      [0.62, 0.45, 0.85, 0.0, 0.9], // Hero    — calm, slow, deep navy
+      [0.85, 0.68, 0.72, 0.0, 1.0], // Proof   — tighter, focused, brighter cyan
+      [1.2, 0.85, 1.15, 0.0, 1.12], // Work    — more energy, richer glow
+      [1.0, 0.66, 1.05, 0.0, 1.0], // How      — directional churn (process)
+      [1.45, 0.72, 1.28, 0.0, 1.02], // Stack  — faster subtle churn
+      [0.66, 0.5, 0.7, 0.45, 0.9], // About    — calm again, warm settle
+      [0.98, 1.0, 0.9, 0.06, 1.22], // Contact — bright, inviting, most cyan
+    ];
+    const N = MOODS.length;
+    const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
+    // live (eased) + target mood, 5 params each
+    const mood = MOODS[0].slice();
+    const target = MOODS[0].slice();
 
     // page progress → shader depth (skipped under reduced motion)
     let scrollTarget = 0;
@@ -196,26 +224,54 @@ export default function Ferrofluid() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Flow phase is INTEGRATED (not raw time) so speed can ease with scroll
-    // and breathe organically without time-jumps.
+    // Flow phase is INTEGRATED (not raw time) so its SPEED can ease per
+    // section and breathe organically without time-jumps.
     let phase = 40; // also the static frame for reduced motion
     let lastT: number | null = null;
+
+    // Interpolate the mood for the current scroll position from the actual
+    // section centres, so each chapter genuinely owns a state. Cheap: 7
+    // getBoundingClientRect reads at 30fps.
+    const computeTarget = () => {
+      const secs = document.querySelectorAll<HTMLElement>("[data-chapter]");
+      const n = Math.min(secs.length, N);
+      if (n < 2) return; // sections not laid out yet — keep MOODS[0]
+      const focus = window.scrollY + window.innerHeight * 0.5;
+      const centre = (el: HTMLElement) => {
+        const r = el.getBoundingClientRect();
+        return r.top + window.scrollY + r.height * 0.5;
+      };
+      let i = 0;
+      while (i < n - 1 && centre(secs[i + 1]) < focus) i++;
+      // blend between section i and i+1 by where focus sits between centres
+      const c0 = centre(secs[i]);
+      const c1 = centre(secs[Math.min(i + 1, n - 1)]);
+      let f = c1 > c0 ? (focus - c0) / (c1 - c0) : 0;
+      f = Math.min(1, Math.max(0, f));
+      f = f * f * (3 - 2 * f); // smoothstep
+      const a = MOODS[i];
+      const b = MOODS[Math.min(i + 1, N - 1)];
+      for (let k = 0; k < 5; k++) target[k] = lerp(a[k], b[k], f);
+    };
 
     const draw = (timeSec: number) => {
       // eased follow so the depth shift glides with Lenis, never snaps
       scrollCurrent += (scrollTarget - scrollCurrent) * 0.06;
-      const moment = Math.sin(Math.min(Math.max(scrollCurrent, 0), 1) * Math.PI);
+
+      computeTarget();
+      for (let k = 0; k < 5; k++) mood[k] += (target[k] - mood[k]) * 0.045; // slow, tasteful
 
       const dt = lastT === null ? 0 : Math.min(timeSec - lastT, 0.1);
       lastT = timeSec;
-      // organic breathing (slow irregular pulse) + gentle per-moment easing —
-      // "more alive", never simply faster
-      const speed =
-        1.0 + 0.18 * moment + 0.1 * Math.sin(timeSec * 0.13) + 0.05 * Math.sin(timeSec * 0.041);
-      phase += dt * speed;
+      // organic breathing on top of the per-section flow speed
+      const breath = 0.12 * Math.sin(timeSec * 0.13) + 0.06 * Math.sin(timeSec * 0.041);
+      phase += dt * mood[0] * (1.0 + breath);
 
       gl.uniform1f(uScroll, scrollCurrent);
-      gl.uniform1f(uMoment, moment);
+      gl.uniform1f(uCyan, mood[1]);
+      gl.uniform1f(uTurb, mood[2]);
+      gl.uniform1f(uWarm, mood[3]);
+      gl.uniform1f(uBright, mood[4]);
       gl.uniform1f(uTime, phase);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -224,7 +280,16 @@ export default function Ferrofluid() {
 
     let raf = 0;
     if (reduced) {
-      draw(40); // static blue gradient frame — no loop under reduced motion
+      // static RICH frame, no morphing loop (accessibility): a mid-mood blend
+      gl.uniform1f(uScroll, 0.4);
+      gl.uniform1f(uCyan, 0.8);
+      gl.uniform1f(uTurb, 1.0);
+      gl.uniform1f(uWarm, 0.0);
+      gl.uniform1f(uBright, 1.1);
+      gl.uniform1f(uTime, 40);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
     } else {
       // PERF: cap to ~30fps (a soft ambient background gains nothing from 60)
       // and PAUSE entirely when the tab is hidden — the fixed full-viewport
