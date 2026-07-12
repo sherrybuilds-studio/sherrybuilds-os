@@ -9,20 +9,19 @@ type Metric = {
 
 const METRICS: Metric[] = [
   {
-    value: "94.2",
-    suffix: "%",
-    caption: "Mean eval score, production",
-    accent: true,
-  },
-  {
     value: "100",
     suffix: "%",
     caption: "First-run eval, reservation system",
+    accent: true,
   },
   {
     value: "38",
     suffix: "%",
     caption: "Token cost reduction, measured in Langfuse",
+  },
+  {
+    value: "4",
+    caption: "Production AI systems, live & monitored",
   },
   {
     value: "78",

@@ -14,17 +14,11 @@ type Metric = {
 
 const METRICS: Metric[] = [
   {
-    value: "94.2",
-    suffix: "%",
-    caption: "Mean evaluation score, production RAG",
-    context: "10-question gold-standard eval suite",
-    accent: true,
-  },
-  {
     value: "100",
     suffix: "%",
     caption: "Eval pass rate, reservation system",
     context: "10/10 first-run, booking + waitlist flows",
+    accent: true, // the lead — cyan + largest
   },
   {
     value: "38",
@@ -154,12 +148,13 @@ export default function DarkProof() {
           </h2>
         </div>
 
-        {/* Figures — ONE liquid-glass panel, clean aligned 2×2 */}
+        {/* Figures — ONE liquid-glass panel, three defensible metrics in a
+            clean single row (100% leads: cyan + largest) */}
         <div
           className="glass-liquid mx-auto mt-[var(--space-16)] max-w-[64rem] rounded-3xl lg:mt-[var(--space-24)]"
           style={{ padding: "clamp(2.5rem, 6vw, 4.5rem)" }}
         >
-          <div className="glass-liquid-content grid grid-cols-1 items-start gap-y-[var(--space-12)] md:grid-cols-2 md:gap-x-[var(--space-16)] md:gap-y-[var(--space-16)]">
+          <div className="glass-liquid-content grid grid-cols-1 items-start gap-y-[var(--space-12)] md:grid-cols-3 md:gap-x-[var(--space-12)] md:gap-y-0">
             {METRICS.map((m, i) => (
               <Reveal key={m.caption} delay={i * 0.08} onRevealStart={() => startCount(i)}>
                 <p
