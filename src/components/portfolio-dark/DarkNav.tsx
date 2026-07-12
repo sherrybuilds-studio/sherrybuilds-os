@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { gsap, useGSAP, EASE } from "@/lib/gsap";
 
 const LINKS = [
   { label: "Work", href: "#work" },
@@ -19,7 +20,9 @@ const cyanPill: React.CSSProperties = {
 
 export default function DarkNav() {
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
+  // Escape to close + lock body scroll while the menu is open
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -31,16 +34,62 @@ export default function DarkNav() {
     };
   }, [open]);
 
+  // Animated open/close in the site's motion language. The menu stays
+  // mounted (so close animates too); autoAlpha keeps it non-focusable when
+  // shut. Reduced motion: instant show/hide, no slide/stagger.
+  useGSAP(
+    () => {
+      const menu = menuRef.current;
+      if (!menu) return;
+      const items = menu.querySelectorAll<HTMLElement>(".dnav-item");
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        if (open) {
+          gsap.set(menu, { autoAlpha: 1, pointerEvents: "auto" });
+          gsap.fromTo(
+            menu,
+            { clipPath: "inset(0% 0% 100% 0%)" },
+            { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: EASE }
+          );
+          gsap.fromTo(
+            items,
+            { autoAlpha: 0, y: 24 },
+            { autoAlpha: 1, y: 0, duration: 0.45, ease: EASE, stagger: 0.07, delay: 0.12 }
+          );
+        } else {
+          gsap.to(menu, {
+            autoAlpha: 0,
+            duration: 0.3,
+            ease: EASE,
+            onComplete: () => gsap.set(menu, { pointerEvents: "none" }),
+          });
+        }
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(menu, {
+          autoAlpha: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+          clipPath: "none",
+        });
+        gsap.set(items, { autoAlpha: 1, y: 0 });
+      });
+    },
+    { dependencies: [open] }
+  );
+
   return (
-    <header
-      className="fixed inset-x-0 top-0 z-50"
-      style={{
-        background: "rgba(10, 14, 26, 0.55)",
-        WebkitBackdropFilter: "blur(20px) saturate(140%)",
-        backdropFilter: "blur(20px) saturate(140%)",
-        borderBottom: "1px solid var(--glass-border)",
-      }}
-    >
+    <>
+      <header
+        className="fixed inset-x-0 top-0 z-50"
+        style={{
+          background: "rgba(10, 14, 26, 0.55)",
+          WebkitBackdropFilter: "blur(20px) saturate(140%)",
+          backdropFilter: "blur(20px) saturate(140%)",
+          borderBottom: "1px solid var(--glass-border)",
+        }}
+      >
       <nav
         aria-label="Main"
         className="mx-auto flex w-full max-w-[80rem] items-center justify-between px-6 lg:px-10"
@@ -48,7 +97,7 @@ export default function DarkNav() {
       >
         <Link
           href="/"
-          className="text-[1.3rem] tracking-tight"
+          className="relative z-[60] text-[1.3rem] tracking-tight"
           style={{ fontFamily: "var(--font-display)", fontWeight: 560, color: "var(--text)" }}
         >
           sherrybuilds<span style={{ color: "var(--accent)" }}>.</span>
@@ -77,13 +126,14 @@ export default function DarkNav() {
             Get in touch
           </a>
 
+          {/* Hamburger — 44px target, animates to an X when open */}
           <button
             type="button"
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
-            className="flex h-11 w-11 items-center justify-center md:hidden"
+            className="relative z-[60] flex h-11 w-11 items-center justify-center md:hidden"
             style={{ color: "var(--text)" }}
           >
             <span className="relative block h-3 w-6" aria-hidden="true">
@@ -104,38 +154,51 @@ export default function DarkNav() {
             </span>
           </button>
         </div>
-      </nav>
+        </nav>
+      </header>
 
-      {open && (
-        <div
-          id="mobile-menu"
-          className="fixed inset-0 top-[var(--nav-height)] z-40 flex flex-col px-6 pt-10 md:hidden"
-          style={{ background: "var(--bg)" }}
+      {/* Mobile menu — glass full-height sheet. MUST be a sibling of <header>,
+          NOT a child: the header's backdrop-filter establishes a containing
+          block that would trap this fixed element inside the 72px bar instead
+          of the viewport. z-45 sits above the page (main z-1) but below the
+          header bar (z-50) so the hamburger stays tappable to close. Always
+          mounted; GSAP-driven so close animates too. */}
+      <div
+        id="mobile-menu"
+        ref={menuRef}
+        className="fixed inset-0 z-[45] flex flex-col px-6 pb-12 pt-[calc(var(--nav-height)+var(--space-8))] md:hidden"
+        style={{
+          background: "rgba(9, 13, 24, 0.92)",
+          WebkitBackdropFilter: "blur(24px) saturate(140%)",
+          backdropFilter: "blur(24px) saturate(140%)",
+          visibility: "hidden",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      >
+        <ul className="flex flex-col">
+          {LINKS.map((l) => (
+            <li key={l.href} className="dnav-item border-b" style={{ borderColor: "var(--glass-border)" }}>
+              <a
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="flex min-h-[3.5rem] items-center py-4 text-[2rem] tracking-tight"
+                style={{ fontFamily: "var(--font-display)", color: "var(--text)" }}
+              >
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a
+          href="#contact"
+          onClick={() => setOpen(false)}
+          className="dnav-item pf-btn mt-[var(--space-8)] inline-flex min-h-[3rem] w-full items-center justify-center rounded-full px-7 text-[1rem] font-medium"
+          style={cyanPill}
         >
-          <ul className="flex flex-col gap-2">
-            {LINKS.map((l) => (
-              <li key={l.href}>
-                <a
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="block py-3 text-[2rem] tracking-tight"
-                  style={{ fontFamily: "var(--font-display)", color: "var(--text)" }}
-                >
-                  {l.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <a
-            href="#contact"
-            onClick={() => setOpen(false)}
-            className="pf-btn mt-8 inline-flex h-12 w-fit items-center rounded-full px-7 text-[0.95rem] font-medium"
-            style={cyanPill}
-          >
-            Get in touch
-          </a>
-        </div>
-      )}
-    </header>
+          Get in touch
+        </a>
+      </div>
+    </>
   );
 }
