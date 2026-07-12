@@ -55,11 +55,14 @@ export default function ChapterScroll() {
         // exit (above) — with scrub lag or a shared target, the entrance's
         // late writes race the exit's fade and both chapters show at once.
         if (i > 0) {
+          // clamp(): the LAST chapter's top can never physically reach 35%
+          // of the viewport — without clamping, its enter fade never
+          // completes and the final section is stuck near opacity 0.
           const enter = gsap.timeline({
             scrollTrigger: {
               trigger: sec,
-              start: "top bottom",
-              end: "top 35%",
+              start: "clamp(top bottom)",
+              end: "clamp(top 35%)",
               scrub: true,
             },
           });

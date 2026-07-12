@@ -200,12 +200,10 @@
   scroll-margin-top: calc(var(--nav-height) + var(--space-4));
 }
 
-/* Smooth native anchor scrolling (motion-gated; Lenis drives wheel input) */
-@media (prefers-reduced-motion: no-preference) {
-  html:has(.portfolio) {
-    scroll-behavior: smooth;
-  }
-}
+/* NOTE: no CSS scroll-behavior: smooth here — it fights Lenis on hash
+   navigation (both animate scroll per frame; the page lands at random
+   midpoints). Anchor smoothness is handled by Lenis in SmoothScroll.tsx;
+   reduced-motion gets native instant jumps + scroll-margin. */
 
 .portfolio ::selection {
   background: var(--accent);

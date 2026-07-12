@@ -20,7 +20,33 @@ export default function SmoothScroll() {
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
+    // Lenis owns anchor navigation (CSS smooth-scroll would fight it):
+    const NAV_OFFSET = -88; // matches the sections' scroll-margin-top
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement).closest?.('a[href^="#"]');
+      if (!a) return;
+      const href = a.getAttribute("href");
+      if (!href || href.length < 2) return;
+      const el = document.querySelector(href);
+      if (!el) return;
+      e.preventDefault();
+      lenis.scrollTo(el as HTMLElement, { offset: NAV_OFFSET, duration: 1.1 });
+      history.pushState(null, "", href);
+    };
+    document.addEventListener("click", onClick);
+
+    // Landing directly on /#section: jump there once everything is laid out
+    if (window.location.hash) {
+      const el = document.querySelector(window.location.hash);
+      if (el) {
+        requestAnimationFrame(() =>
+          lenis.scrollTo(el as HTMLElement, { offset: NAV_OFFSET, immediate: true })
+        );
+      }
+    }
+
     return () => {
+      document.removeEventListener("click", onClick);
       gsap.ticker.remove(tick);
       lenis.destroy();
     };
