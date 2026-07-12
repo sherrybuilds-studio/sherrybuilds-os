@@ -1,6 +1,7 @@
 import Reveal from "@/components/portfolio/Reveal";
 
 const CURRENTLY = [
+  { label: "Age", value: "22" },
   { label: "Location", value: "Berlin" },
   { label: "Focus", value: "Production LLM systems" },
   { label: "Open to", value: "Werkstudent roles" },
@@ -57,12 +58,31 @@ export default function DarkAbout() {
           </Reveal>
         </div>
 
-        {/* Bio card — glass, traveling glow, bio left / currently right */}
+        {/* Bio card — glass, traveling glow, bio left / currently right,
+            giant faint monogram bleeding off the top-right corner */}
         <Reveal
-          className="glass glass-glow mx-auto mt-[var(--space-16)] max-w-[64rem] rounded-3xl lg:mt-[var(--space-24)]"
+          className="glass glass-glow relative mx-auto mt-[var(--space-16)] max-w-[64rem] overflow-hidden rounded-3xl lg:mt-[var(--space-24)]"
         >
+          {/* the one visual touch: Fraunces "S." — echoes the wordmark */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute select-none"
+            style={{
+              top: "-0.22em",
+              right: "-0.04em",
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontWeight: 500,
+              fontSize: "clamp(10rem, 24vw, 17rem)",
+              lineHeight: 1,
+              color: "rgba(140, 160, 200, 0.07)",
+              zIndex: 0,
+            }}
+          >
+            S<span style={{ color: "rgba(34, 211, 238, 0.13)" }}>.</span>
+          </span>
           <div
-            className="grid grid-cols-1 gap-[var(--space-8)] lg:grid-cols-12 lg:gap-[var(--space-12)]"
+            className="relative z-[1] grid grid-cols-1 gap-[var(--space-8)] lg:grid-cols-12 lg:gap-[var(--space-12)]"
             style={{ padding: "clamp(2rem, 5vw, 3.5rem)" }}
           >
             <div className="lg:col-span-7">
@@ -74,20 +94,23 @@ export default function DarkAbout() {
                   fontWeight: 420,
                 }}
               >
-                I&apos;m Shehryar — an AI Automation Engineer based in Berlin. I
-                like building LLM systems that survive contact with the real
-                world: retrieval that returns the right thing, agents that run
-                unattended, and the observability to know they&apos;re working —
-                not just hope they are.
+                I&apos;m Shehryar — a 22-year-old AI Automation Engineer based
+                in Berlin. I got into this because I got tired of AI demos that
+                fall apart the second a real person touches them, so I started
+                building systems that actually hold up: retrieval that returns
+                the right thing, agents that run on their own overnight, and
+                enough observability to know they&apos;re working instead of
+                just hoping.
               </p>
               <p
                 className="mt-[var(--space-6)]"
                 style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--muted)" }}
               >
-                I care about the boring parts most people skip — evals, tracing,
-                cost — because that&apos;s the line between a demo and something
-                you can actually ship. Right now I&apos;m looking for a
-                Werkstudent role in Berlin where I can do exactly that.
+                I care most about the unglamorous parts — evals, tracing, cost
+                — because that&apos;s the line between a cool demo and something
+                you can put in front of real users. Right now I&apos;m looking
+                for a Werkstudent role in Berlin where I can build exactly this
+                kind of thing with a team.
               </p>
             </div>
 
