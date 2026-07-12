@@ -94,23 +94,18 @@ export default function DarkAbout() {
                   fontWeight: 420,
                 }}
               >
-                I&apos;m Shehryar — a 22-year-old AI Automation Engineer based
-                in Berlin. I got into this because I got tired of AI demos that
-                fall apart the second a real person touches them, so I started
-                building systems that actually hold up: retrieval that returns
-                the right thing, agents that run on their own overnight, and
-                enough observability to know they&apos;re working instead of
-                just hoping.
+                I&apos;m Shehryar, a 22-year-old AI Automation Engineer in
+                Berlin. I build LLM systems for production — retrieval that
+                returns the right thing, agents that run unattended, and the
+                observability to keep them accountable.
               </p>
               <p
                 className="mt-[var(--space-6)]"
                 style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--muted)" }}
               >
-                I care most about the unglamorous parts — evals, tracing, cost
-                — because that&apos;s the line between a cool demo and something
-                you can put in front of real users. Right now I&apos;m looking
-                for a Werkstudent role in Berlin where I can build exactly this
-                kind of thing with a team.
+                My focus is the parts that separate a demo from a real system:
+                evaluation, tracing, and cost. I&apos;m currently open to
+                Werkstudent roles in Berlin.
               </p>
             </div>
 
