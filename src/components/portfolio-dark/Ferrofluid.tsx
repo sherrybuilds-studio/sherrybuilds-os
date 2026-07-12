@@ -224,11 +224,20 @@ export default function Ferrofluid() {
 
     let raf = 0;
     if (reduced) {
-      draw(40); // static blue gradient frame
+      draw(40); // static blue gradient frame — no loop under reduced motion
     } else {
+      // PERF: cap to ~30fps (a soft ambient background gains nothing from 60)
+      // and PAUSE entirely when the tab is hidden — the fixed full-viewport
+      // canvas is otherwise always "on screen". Halving the frame rate halves
+      // the fragment-shader + compositor cost of the background.
+      const FRAME_MS = 1000 / 30;
+      let last = -Infinity;
       const loop = (t: number) => {
-        draw(t / 1000);
         raf = requestAnimationFrame(loop);
+        if (document.hidden) return; // pause when not in view (tab hidden)
+        if (t - last < FRAME_MS) return; // throttle to ~30fps
+        last = t;
+        draw(t / 1000);
       };
       raf = requestAnimationFrame(loop);
     }

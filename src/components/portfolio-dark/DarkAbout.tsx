@@ -1,4 +1,7 @@
-import Reveal from "@/components/portfolio/Reveal";
+"use client";
+
+import { useRef } from "react";
+import { gsap, ScrollTrigger, SplitText, useGSAP, EASE, STAGGER } from "@/lib/gsap";
 
 const CURRENTLY = [
   { label: "Age", value: "22" },
@@ -15,9 +18,67 @@ const mono: React.CSSProperties = {
 };
 
 export default function DarkAbout() {
+  const scope = useRef<HTMLElement>(null);
+
+  // Richer entrance in the site's own language (same ease/stagger tokens):
+  // headline lines mask up, card fades, monogram scales in, then bio
+  // paragraphs and Currently rows stagger one by one.
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const h2 = scope.current?.querySelector("h2");
+        if (!h2) return;
+        const split = SplitText.create(h2, {
+          type: "lines",
+          mask: "lines",
+          autoSplit: true,
+          onSplit(self) {
+            (self.masks as HTMLElement[]).forEach((m) => {
+              m.style.paddingBottom = "0.18em";
+              m.style.marginBottom = "-0.18em";
+            });
+            return gsap
+              .timeline({
+                scrollTrigger: { trigger: scope.current, start: "clamp(top 70%)" },
+                defaults: { ease: EASE },
+              })
+              .fromTo(".about-kicker", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.5 }, 0)
+              .fromTo(self.lines, { yPercent: 115 }, { yPercent: 0, duration: 0.9, stagger: 0.11 }, 0.1)
+              .fromTo(".about-card", { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7 }, 0.35)
+              .fromTo(
+                ".about-mono",
+                { autoAlpha: 0, scale: 0.9 },
+                { autoAlpha: 1, scale: 1, duration: 1.1 },
+                0.5
+              )
+              .fromTo(
+                ".about-item",
+                { autoAlpha: 0, y: 16 },
+                { autoAlpha: 1, y: 0, duration: 0.55, stagger: STAGGER },
+                0.55
+              );
+          },
+        });
+        return () => split.revert();
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set([".about-kicker", ".about-card", ".about-mono", ".about-item"], {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+        });
+      });
+    },
+    { scope }
+  );
+
   return (
     <section
       id="about"
+      ref={scope}
       aria-labelledby="about-heading"
       data-chapter=""
       className="relative overflow-hidden"
@@ -32,41 +93,38 @@ export default function DarkAbout() {
             style={{
               inset: "-12% -25%",
               background:
-                "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(10, 14, 26, 0.85) 0%, rgba(10, 14, 26, 0.5) 50%, transparent 75%)",
+                "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(10, 14, 26, 0.92) 0%, rgba(10, 14, 26, 0.62) 50%, transparent 78%)",
             }}
           />
-          <Reveal>
-            <p className="uppercase" style={mono}>
-              05 — About
-            </p>
-            <h2
-              id="about-heading"
-              className="mx-auto mt-[var(--space-6)] max-w-[20ch]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "var(--step-6)",
-                fontWeight: 480,
-                lineHeight: 1.08,
-                letterSpacing: "-0.015em",
-                color: "var(--text)",
-                textWrap: "balance",
-              }}
-            >
-              The person behind the{" "}
-              <em style={{ color: "var(--accent)", fontWeight: 440 }}>systems</em>.
-            </h2>
-          </Reveal>
+          <p className="about-kicker uppercase" data-reveal="" style={mono}>
+            05 — About
+          </p>
+          <h2
+            id="about-heading"
+            className="mx-auto mt-[var(--space-6)] max-w-[20ch]"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "var(--step-6)",
+              fontWeight: 480,
+              lineHeight: 1.08,
+              letterSpacing: "-0.015em",
+              color: "var(--text)",
+              textWrap: "balance",
+            }}
+          >
+            The person behind the{" "}
+            <em style={{ color: "var(--accent)", fontWeight: 440 }}>systems</em>.
+          </h2>
         </div>
 
-        {/* Bio card — glass, traveling glow, bio left / currently right,
-            giant faint monogram bleeding off the top-right corner */}
-        <Reveal
-          className="glass glass-glow relative mx-auto mt-[var(--space-16)] max-w-[64rem] overflow-hidden rounded-3xl lg:mt-[var(--space-24)]"
+        {/* Bio card */}
+        <div
+          className="about-card glass glass-glow relative mx-auto mt-[var(--space-16)] max-w-[64rem] overflow-hidden rounded-3xl lg:mt-[var(--space-24)]"
+          data-reveal=""
         >
-          {/* the one visual touch: Fraunces "S." — echoes the wordmark */}
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute select-none"
+            className="about-mono pointer-events-none absolute select-none"
             style={{
               top: "-0.22em",
               right: "-0.04em",
@@ -87,6 +145,7 @@ export default function DarkAbout() {
           >
             <div className="lg:col-span-7">
               <p
+                className="about-item"
                 style={{
                   fontSize: "var(--step-1)",
                   lineHeight: 1.7,
@@ -101,7 +160,7 @@ export default function DarkAbout() {
                 accountable.
               </p>
               <p
-                className="mt-[var(--space-6)]"
+                className="about-item mt-[var(--space-6)]"
                 style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--text)", fontWeight: 420 }}
               >
                 I&apos;m not only an AI engineer. I&apos;m comfortable across
@@ -111,7 +170,7 @@ export default function DarkAbout() {
                 that too. (This site is one of them.)
               </p>
               <p
-                className="mt-[var(--space-6)]"
+                className="about-item mt-[var(--space-6)]"
                 style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--muted)" }}
               >
                 What I care about most is the part that separates a demo from a
@@ -120,16 +179,15 @@ export default function DarkAbout() {
               </p>
             </div>
 
-            {/* currently — quiet mono facts */}
             <div className="lg:col-span-4 lg:col-start-9">
-              <p className="uppercase" style={mono}>
+              <p className="about-item uppercase" style={mono}>
                 Currently
               </p>
               <dl className="mt-[var(--space-4)]">
                 {CURRENTLY.map((c, i) => (
                   <div
                     key={c.label}
-                    className={`py-[var(--space-4)] ${i > 0 ? "border-t" : ""}`}
+                    className={`about-item py-[var(--space-4)] ${i > 0 ? "border-t" : ""}`}
                   >
                     <dt className="uppercase" style={{ ...mono, fontSize: "0.7rem" }}>
                       {c.label}
@@ -145,7 +203,7 @@ export default function DarkAbout() {
               </dl>
             </div>
           </div>
-        </Reveal>
+        </div>
       </div>
     </section>
   );

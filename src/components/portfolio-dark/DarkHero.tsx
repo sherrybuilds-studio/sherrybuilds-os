@@ -97,7 +97,9 @@ export default function DarkHero() {
                 fontFamily: "var(--font-display)",
                 fontSize: "var(--display)",
                 fontWeight: 480,
-                lineHeight: 1.04,
+                // 1.1 reserves room between lines: "intelligent"'s descenders
+                // and the capitalized morph word can no longer interpenetrate
+                lineHeight: 1.1,
                 letterSpacing: "-0.015em",
                 color: "var(--text)",
               }}

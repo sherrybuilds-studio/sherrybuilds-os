@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+// ── Sentry plugin wraps the Next.js config for automatic error reporting ──
+const { withSentryConfig } = require("@sentry/nextjs");
+
 // ── Deployment contract — keep this in lockstep with ecosystem.config.js ──────
 //
 // This app is served by PM2 running `next start` (the classic Next.js server),
@@ -15,6 +18,16 @@ import type { NextConfig } from "next";
 // files in the same commit, or neither.
 const nextConfig: NextConfig = {
   output: undefined, // explicit: classic `next start` server (paired with PM2)
+  // Dev-only: allow browsing the dev server via the Tailscale IP — without
+  // this, Next blocks cross-origin /_next/* assets, JS never runs, and every
+  // GSAP-revealed element stays visibility:hidden (blank hero).
+  allowedDevOrigins: ["100.78.223.103", "*.trycloudflare.com", "srv1467708.tailbf4b77.ts.net"],
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG || "sherrybuilds",
+  project: "sherrybuilds-os",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+  disableLogger: true,
+});

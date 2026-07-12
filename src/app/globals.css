@@ -245,6 +245,21 @@
   .portfolio [data-reveal] {
     visibility: hidden;
   }
+  /* PERF: promote animating cards + the pinned chapter wrapper to their own
+     compositor layers so reveals/glow don't repaint on the main thread.
+     will-change only (no literal translateZ) — the cards have contested
+     transform states (.hib-panel.is-active scale) that a forced transform
+     would clobber. */
+  .portfolio-dark [data-chapter-inner] {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+  .portfolio-dark .work-card,
+  .portfolio-dark .hib-panel,
+  .portfolio-dark .about-card,
+  .portfolio-dark .glass-glow {
+    will-change: transform, opacity;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -263,6 +278,12 @@
    spacing, motion tokens and Reveal machinery from .portfolio and
    overrides only color + adds the glass recipe. Light tokens untouched.
    ════════════════════════════════════════════════════════════════════ */
+/* dark page = dark canvas everywhere: prevents white flashes on large
+   scroll jumps / overscroll (html default background is light) */
+html:has(.portfolio-dark) {
+  background: #0a0e1a;
+}
+
 .portfolio-dark {
   --bg: #0a0e1a;
   --bg-2: #0e1424;
@@ -270,7 +291,7 @@
   --border: rgba(255, 255, 255, 0.1); /* hairlines become glass hairlines */
   --glass-border: rgba(255, 255, 255, 0.1);
   --text: #eaf0ff;
-  --muted: #8a96b4; /* 6.3:1 on --bg — AA for body sizes */
+  --muted: #97a3c1; /* ~7.4:1 on --bg — holds AA even over lit fluid */
   --accent: #22d3ee;
   --accent-2: #3b82f6;
   --accent-ink: #67e2f5; /* lighter cyan for small mono text on dark */
@@ -354,9 +375,9 @@
   isolation: isolate;
   /* white sheen over a navy tint: the tint is the panel's own scrim so
      bright fluid behind it can't wash out caption contrast */
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%), linear-gradient(rgba(10, 14, 26, 0.5), rgba(10, 14, 26, 0.5));
-  -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.12);
-  backdrop-filter: blur(36px) saturate(200%) brightness(1.12);
+  /* PERF: faked frost (see .glass) — the navy tint is opaque enough to
+     read as a frosted panel without the per-frame backdrop blur. */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 100%), linear-gradient(rgba(11, 16, 30, 0.72), rgba(11, 16, 30, 0.72));
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
     inset 0 -40px 64px rgba(10, 14, 26, 0.35),
@@ -434,19 +455,26 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    padding: 1px;
-    background: conic-gradient(from var(--pf-border-angle), transparent 0deg, rgba(34, 211, 238, 0.4) 30deg, rgba(34, 211, 238, 0.12) 62deg, transparent 95deg);
+    padding: 2.5px; /* visible ring, not a sliver */
+    background: conic-gradient(from var(--pf-border-angle), transparent 0deg, rgba(34, 211, 238, 0.85) 30deg, rgba(34, 211, 238, 0.25) 62deg, transparent 95deg);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
+    /* drop-shadow applies AFTER the mask — the light bleeds off the edge */
+    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.5));
     animation: pf-border-spin 9s linear infinite;
     pointer-events: none;
   }
   /* Proof panel: same traveling light layered over its static rim */
   .portfolio-dark .glass-liquid::before {
-    background: conic-gradient(from var(--pf-border-angle), transparent 0deg, rgba(34, 211, 238, 0.35) 30deg, rgba(34, 211, 238, 0.1) 62deg, transparent 95deg), linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.02) 55%, rgba(4, 7, 14, 0.65) 100%);
+    background: conic-gradient(from var(--pf-border-angle), transparent 0deg, rgba(34, 211, 238, 0.8) 30deg, rgba(34, 211, 238, 0.22) 62deg, transparent 95deg), linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.02) 55%, rgba(4, 7, 14, 0.65) 100%);
+    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.4));
     animation: pf-border-spin 9s linear infinite;
+  }
+  /* darker fill behind the ring for contrast (glass-liquid has its own tint) */
+  .portfolio-dark .glass.glass-glow {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%), linear-gradient(rgba(8, 12, 22, 0.45), rgba(8, 12, 22, 0.45));
   }
   /* de-sync neighboring cards */
   .portfolio-dark .work-card:nth-of-type(2)::before {
@@ -710,11 +738,15 @@
   z-index: 1; /* text/numbers above rim + sheen overlays, fully crisp */
 }
 
-/* The one glass recipe — nav, chips, cards, CTAs all share it */
+/* The everyday glass recipe — chips, cards, CTAs.
+   PERF: NO backdrop-filter. A live blur re-samples the animated ferrofluid
+   canvas every frame, and ~25 of these over the canvas was the dominant
+   frame cost. A translucent light-sheen over a semi-opaque navy reads as
+   frosted glass without sampling the background at all. The nav keeps the
+   one real blur (its own inline style). Gradients single-line (pipeline
+   drops multi-line gradient rules). */
 .portfolio-dark .glass {
-  background: var(--surface);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  backdrop-filter: blur(20px) saturate(140%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.025) 100%), linear-gradient(rgba(14, 20, 36, 0.62), rgba(14, 20, 36, 0.62));
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
