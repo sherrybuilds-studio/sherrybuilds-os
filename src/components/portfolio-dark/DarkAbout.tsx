@@ -3,7 +3,7 @@ import Reveal from "@/components/portfolio/Reveal";
 const CURRENTLY = [
   { label: "Age", value: "22" },
   { label: "Location", value: "Berlin" },
-  { label: "Focus", value: "Production LLM systems" },
+  { label: "Focus", value: "AI systems · Full-stack" },
   { label: "Open to", value: "Werkstudent roles" },
 ];
 
@@ -94,18 +94,29 @@ export default function DarkAbout() {
                   fontWeight: 420,
                 }}
               >
-                I&apos;m Shehryar, a 22-year-old AI Automation Engineer in
-                Berlin. I build LLM systems for production — retrieval that
-                returns the right thing, agents that run unattended, and the
-                observability to keep them accountable.
+                I&apos;m Shehryar — a 22-year-old AI Automation Engineer and
+                full-stack developer based in Berlin. I build LLM systems for
+                production: retrieval that returns the right thing, agents
+                that run unattended, and the observability to keep them
+                accountable.
+              </p>
+              <p
+                className="mt-[var(--space-6)]"
+                style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--text)", fontWeight: 420 }}
+              >
+                I&apos;m not only an AI engineer. I&apos;m comfortable across
+                the whole stack — Python and FastAPI on the backend, TypeScript
+                and Next.js on the front, plus the infrastructure to deploy and
+                monitor it. If it needs a web app or an interface, I can build
+                that too. (This site is one of them.)
               </p>
               <p
                 className="mt-[var(--space-6)]"
                 style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--muted)" }}
               >
-                My focus is the parts that separate a demo from a real system:
-                evaluation, tracing, and cost. I&apos;m currently open to
-                Werkstudent roles in Berlin.
+                What I care about most is the part that separates a demo from a
+                real system: evaluation, tracing, and cost. I&apos;m currently
+                open to Werkstudent roles in Berlin.
               </p>
             </div>
 
