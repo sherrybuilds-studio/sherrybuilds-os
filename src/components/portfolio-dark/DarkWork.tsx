@@ -16,16 +16,15 @@ type CaseStudy = {
   link?: { label: string; href: string };
 };
 
-// VERIFY: humanized copy below supplied by Sherry (2026-07-09) — confirm
-// wording reads true before any public deploy.
+// Vault-approved copy (2026-07-12): defensible facts, generic names.
 const CASES: CaseStudy[] = [
   {
     index: "01",
     title: "Multilingual RAG Commerce Agent",
-    meta: "Private client · Commerce",
+    meta: "Client pilot · Commerce",
     description:
-      "The hard part was answering accurately across English, Urdu, and Roman Urdu from one knowledge base — a hybrid RAG pipeline with semantic caching, every response traced in Langfuse.",
-    metric: "38% lower cost per message · full observability",
+      "A WhatsApp sales agent on FastAPI with an HMAC-verified webhook, answering over a product catalog through RAG. A semantic cache (95% cosine, 7-day TTL + LRU) cuts repeat cost, every response is cost-traced in Langfuse, and it ships behind eval gates in CI.",
+    metric: "10/10 offline eval · Langfuse-traced",
     metricAccent: true,
     stack: ["Python", "FastAPI", "ChromaDB", "Claude", "Langfuse"],
     demo: "rag-commerce-agent",
@@ -33,10 +32,10 @@ const CASES: CaseStudy[] = [
   {
     index: "02",
     title: "Reservation System",
-    meta: "Hospitality · Booking platform",
+    meta: "Client pilot · Hospitality",
     description:
-      "Restaurants lose bookings after hours and to no-shows — this WhatsApp agent takes reservations and runs a waitlist 24/7, the full flow verified before launch.",
-    metric: "100% first-run eval",
+      "A booking agent running live under PM2 — RAG with a semantic cache and conversation memory, grounded in the actual menu so it never invents dishes. It takes reservations and runs a waitlist end to end.",
+    metric: "10/10 offline eval · 0.646 avg retrieval",
     metricAccent: true,
     stack: ["Python", "FastAPI", "Supabase", "WhatsApp Cloud API"],
     demo: "reservation-system",
@@ -46,21 +45,21 @@ const CASES: CaseStudy[] = [
     title: "Autonomous Agent Pipeline",
     meta: "Self-built · Automation",
     description:
-      "I was filtering opportunities by hand every day, so I automated the whole loop — scrape, score, generate, track, notify — running on its own each morning.",
+      "A five-stage pipeline that runs itself every morning: scrape sources (Adzuna, Arbeitnow, Firecrawl), score by weighted fit, draft cover letters with Claude, dedupe in Supabase, and send a Telegram digest — on cron, with graceful degradation when a source is down.",
     metric: "Runs daily · zero human input",
     metricAccent: true,
-    stack: ["Python", "Claude", "Supabase", "cron"],
+    stack: ["Python", "Claude", "Supabase", "Firecrawl", "cron"],
     demo: "agent-pipeline",
   },
   {
     index: "04",
-    title: "Open-Source RAG Reference",
-    meta: "Public · Reference architecture",
+    title: "Platform & Shared Core",
+    meta: "Solo build · Monorepo",
     description:
-      "An anonymized version of the commerce agent — same RAG, caching, and eval patterns, public and inspectable, with no client data.",
-    metric: "Public reference",
+      "The platform underneath the pilots: a solo monorepo with a shared core — retrieval, caching, and eval gates — reused across agents, guarded by CI on every push (lint, tests, eval gates, gitleaks).",
+    metric: "38% token cost reduction · ~7.7k LOC Python, solo",
     metricAccent: false, // this row's single accent is the outbound link
-    stack: ["Python", "ChromaDB", "FastAPI"],
+    stack: ["Python", "FastAPI", "ChromaDB", "GitHub Actions"],
     demo: "rag-reference",
     link: { label: "GitHub", href: "https://github.com/sherrybuilds-studio" },
   },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap, ScrollTrigger, SplitText, useGSAP, EASE, STAGGER } from "@/lib/gsap";
+import { gsap, SplitText, useGSAP, EASE, STAGGER } from "@/lib/gsap";
 
 const CURRENTLY = [
   { label: "Age", value: "22" },
@@ -153,29 +153,28 @@ export default function DarkAbout() {
                   fontWeight: 420,
                 }}
               >
-                I&apos;m Shehryar — a 22-year-old AI Automation Engineer and
-                full-stack developer based in Berlin. I build LLM systems for
-                production: retrieval that returns the right thing, agents
-                that run unattended, and the observability to keep them
-                accountable.
+                I&apos;m Shehryar — a 22-year-old CS student in Berlin who
+                builds production AI systems: retrieval that returns the right
+                thing, agents that run unattended, and the observability to
+                keep them accountable.
               </p>
               <p
                 className="about-item mt-[var(--space-6)]"
                 style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--text)", fontWeight: 420 }}
               >
-                I&apos;m not only an AI engineer. I&apos;m comfortable across
-                the whole stack — Python and FastAPI on the backend, TypeScript
-                and Next.js on the front, plus the infrastructure to deploy and
-                monitor it. If it needs a web app or an interface, I can build
-                that too. (This site is one of them.)
+                I design, build, and operate the whole stack solo — from Linux
+                and Docker on the server, through the RAG and eval layer, to
+                the animated frontend you&apos;re reading now. When a product
+                needs multilingual interfaces (English, German, Urdu), I build
+                those too.
               </p>
               <p
                 className="about-item mt-[var(--space-6)]"
                 style={{ fontSize: "var(--step-1)", lineHeight: 1.7, color: "var(--muted)" }}
               >
-                What I care about most is the part that separates a demo from a
-                real system: evaluation, tracing, and cost. I&apos;m currently
-                open to Werkstudent roles in Berlin.
+                I work eval-first — the part that separates a demo from a real
+                system is evaluation, tracing, and cost. I&apos;m currently open
+                to Werkstudent roles in Berlin.
               </p>
             </div>
 

@@ -14,22 +14,22 @@ type Metric = {
 
 const METRICS: Metric[] = [
   {
-    value: "100",
-    suffix: "%",
-    caption: "Eval pass rate, reservation system",
-    context: "10/10 first-run, booking + waitlist flows",
-    accent: true, // the lead — cyan + largest
-  },
-  {
     value: "38",
     suffix: "%",
     caption: "Token cost reduction (Langfuse-measured)",
-    context: "via semantic caching of repeat queries",
+    context: "semantic cache — 95% cosine, 7-day TTL",
+    accent: true, // the lead — cyan + largest, strongest defensible number
+  },
+  {
+    value: "10",
+    suffix: "/10",
+    caption: "Offline evals passed",
+    context: "commerce + reservation pilots",
   },
   {
     value: "4",
     caption: "Production AI systems, live & monitored",
-    context: "commerce, booking, pipeline, open-source",
+    context: "commerce, booking, pipeline, platform",
   },
 ];
 

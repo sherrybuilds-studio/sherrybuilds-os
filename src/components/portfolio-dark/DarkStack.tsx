@@ -10,31 +10,74 @@ type Group = {
 
 const GROUPS: Group[] = [
   {
-    label: "Languages & frameworks",
-    tools: ["Python", "FastAPI", "TypeScript", "Next.js"],
-    duration: 40,
+    label: "Languages",
+    tools: ["Python", "TypeScript", "SQL", "Bash"],
+    duration: 38,
   },
   {
     label: "AI & RAG",
-    tools: ["Claude", "ChromaDB", "semantic caching", "RAG pipelines"],
-    duration: 44,
+    tools: [
+      "Claude",
+      "OpenAI SDK",
+      "OpenRouter",
+      "ChromaDB",
+      "embeddings (MiniLM)",
+      "hybrid search",
+      "semantic caching",
+      "eval gates",
+    ],
+    duration: 52,
     reverse: true,
+  },
+  {
+    label: "Backend",
+    tools: ["FastAPI", "Flask", "Pydantic", "Uvicorn", "slowapi"],
+    duration: 40,
   },
   {
     label: "Data & infra",
-    tools: ["Supabase", "PostgreSQL", "Docker", "PM2", "Cloudflare", "Caddy", "Tailscale", "Backblaze"],
-    duration: 42,
-  },
-  {
-    label: "Observability",
-    tools: ["Langfuse", "evaluation suites"],
-    duration: 32,
+    tools: [
+      "PostgreSQL",
+      "Supabase",
+      "Redis",
+      "ClickHouse",
+      "Docker",
+      "Caddy",
+      "Cloudflare",
+      "PM2",
+      "cron",
+    ],
+    duration: 54,
     reverse: true,
   },
   {
-    label: "Automation",
-    tools: ["n8n", "WhatsApp Cloud API", "cron"],
+    label: "Observability",
+    tools: ["Langfuse", "OpenTelemetry", "structured logging"],
     duration: 36,
+  },
+  {
+    label: "Automation",
+    tools: [
+      "n8n",
+      "WhatsApp Cloud API",
+      "Telegram Bot API",
+      "Playwright",
+      "Firecrawl",
+      "Resend",
+    ],
+    duration: 48,
+    reverse: true,
+  },
+  {
+    label: "Frontend",
+    tools: ["Next.js", "React", "GSAP", "Lenis", "Three.js/R3F", "shadcn/ui", "Zod"],
+    duration: 46,
+  },
+  {
+    label: "DevOps",
+    tools: ["Git", "GitHub Actions CI", "gitleaks", "pytest", "ruff"],
+    duration: 42,
+    reverse: true,
   },
 ];
 
