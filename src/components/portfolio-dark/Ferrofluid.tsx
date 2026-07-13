@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { fluidBus } from "@/lib/fluidBus";
 
 /**
  * Ferrofluid ambient background — THE one site-wide layer behind all
@@ -32,7 +31,6 @@ uniform float uCyan;   /* cyan mix in the tendrils (glow warmth) */
 uniform float uTurb;   /* domain-warp amount — churn / chaos */
 uniform float uWarm;   /* shift toward indigo for the About settle */
 uniform float uBright; /* overall intensity */
-uniform float uDir;    /* transient directional advection (event pulse) */
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
@@ -65,10 +63,8 @@ void main() {
 
   float t = uTime * 0.05; // continuous, slow (flow SPEED eased in JS via uTime)
 
-  // domain warp — the "magnetic" flow; uTurb drives churn per section,
-  // uDir sends a transient directional shove (How-I-Build step activation)
+  // domain warp — the "magnetic" flow; uTurb drives churn per section
   vec2 warp = vec2(fbm(p + vec2(0.0, 3.7), t), fbm(p + vec2(5.2, 1.3), t * 0.85)) * uTurb;
-  warp += uDir * vec2(0.6, -0.35);
 
   vec3 blue = vec3(0.231, 0.51, 0.965);   /* --accent-2 #3B82F6 */
   vec3 cyan = vec3(0.133, 0.827, 0.933);  /* --accent   #22D3EE */
@@ -178,7 +174,6 @@ export default function Ferrofluid() {
     const uTurb = gl.getUniformLocation(prog, "uTurb");
     const uWarm = gl.getUniformLocation(prog, "uWarm");
     const uBright = gl.getUniformLocation(prog, "uBright");
-    const uDir = gl.getUniformLocation(prog, "uDir");
 
     // Mobile matches desktop richness: full 3-tier detail + near-equal
     // intensity. Affordable because the phone canvas has ~4x fewer pixels
@@ -272,19 +267,12 @@ export default function Ferrofluid() {
       const breath = 0.12 * Math.sin(timeSec * 0.13) + 0.06 * Math.sin(timeSec * 0.041);
       phase += dt * mood[0] * (1.0 + breath);
 
-      // event boosts (count-up / card-enter / step-activate) ride ON TOP of
-      // the base mood, then decay toward rest so each pulse spikes + settles
-      const boost = fluidBus.read();
-      // flow speed also gets a small lift from turbulence pulses (feels alive)
-      phase += dt * boost.turb * 0.35;
       gl.uniform1f(uScroll, scrollCurrent);
-      gl.uniform1f(uCyan, Math.min(1.5, mood[1] + boost.cyan));
-      gl.uniform1f(uTurb, mood[2] + boost.turb);
+      gl.uniform1f(uCyan, mood[1]);
+      gl.uniform1f(uTurb, mood[2]);
       gl.uniform1f(uWarm, mood[3]);
-      gl.uniform1f(uBright, mood[4] + boost.bright);
-      gl.uniform1f(uDir, boost.dir);
+      gl.uniform1f(uBright, mood[4]);
       gl.uniform1f(uTime, phase);
-      fluidBus.decay(0.92); // ~0.4s settle at 30fps
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -298,7 +286,6 @@ export default function Ferrofluid() {
       gl.uniform1f(uTurb, 1.0);
       gl.uniform1f(uWarm, 0.0);
       gl.uniform1f(uBright, 1.1);
-      gl.uniform1f(uDir, 0.0);
       gl.uniform1f(uTime, 40);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);

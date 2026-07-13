@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { gsap, EASE, SplitText, useGSAP } from "@/lib/gsap";
 import Reveal from "@/components/portfolio/Reveal";
-import { fluidBus } from "@/lib/fluidBus";
 
 type Metric = {
   value: string; // final display value, also the SSR/reduced-motion state
@@ -99,11 +98,6 @@ export default function DarkProof() {
       ease: EASE,
       onUpdate: () => {
         el.textContent = state.v.toFixed(decimals);
-        // pulse the ferrofluid IN SYNC with the tick-up: cyan + energy rise
-        // with count progress, then settle once the numbers stop (the bus
-        // decays after the last onUpdate).
-        const prog = target > 0 ? state.v / target : 1;
-        fluidBus.pulse({ cyan: 0.55 * prog, bright: 0.22 * prog, turb: 0.18 * prog });
       },
     });
   };

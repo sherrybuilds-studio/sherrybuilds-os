@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import Reveal from "@/components/portfolio/Reveal";
 import { gsap, ScrollTrigger, useGSAP, EASE } from "@/lib/gsap";
-import { fluidBus } from "@/lib/fluidBus";
 
 const STEPS = [
   {
@@ -63,11 +62,6 @@ export default function DarkHowIBuild() {
             panel.style.opacity = Math.max(0.4, 1 - dn * 0.6).toFixed(3);
           });
           if (best !== active) {
-            // a step just activated — send a directional pulse through the
-            // fluid (sign follows scroll direction: forward vs back)
-            if (active !== -1 && best !== -1) {
-              fluidBus.pulse({ dir: best > active ? 0.7 : -0.7, turb: 0.25, cyan: 0.2 });
-            }
             active = best;
             panels.forEach((panel, i) => panel.classList.toggle("is-active", i === best));
           }
