@@ -166,19 +166,22 @@ export default function DarkWork() {
           const items = card.querySelectorAll(".work-stagger");
           gsap.set(card, { autoAlpha: 0, x: i % 2 === 0 ? -40 : 40 });
           gsap.set(items, { autoAlpha: 0, y: 14 });
+          // PERF: build the timeline PAUSED at mount (idle) — not inside
+          // onEnter — so the object construction doesn't land on the scroll
+          // critical path. onEnter just plays it.
+          const tl = gsap
+            .timeline({ paused: true })
+            .to(card, { autoAlpha: 1, x: 0, duration: 0.6, ease: EASE })
+            .to(
+              items,
+              { autoAlpha: 1, y: 0, duration: 0.45, ease: EASE, stagger: 0.1 },
+              "-=0.35"
+            );
           ScrollTrigger.create({
             trigger: card,
             start: "clamp(top 80%)",
             once: true,
-            onEnter: () =>
-              gsap
-                .timeline()
-                .to(card, { autoAlpha: 1, x: 0, duration: 0.6, ease: EASE })
-                .to(
-                  items,
-                  { autoAlpha: 1, y: 0, duration: 0.45, ease: EASE, stagger: 0.1 },
-                  "-=0.35"
-                ),
+            onEnter: () => tl.play(),
           });
         });
       });
