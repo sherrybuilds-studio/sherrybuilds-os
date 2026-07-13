@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/portfolio/Reveal";
 import { gsap, ScrollTrigger, useGSAP, EASE, prefersReducedMotion } from "@/lib/gsap";
+import { fluidBus } from "@/lib/fluidBus";
 
 type CaseStudy = {
   index: string;
@@ -181,7 +182,12 @@ export default function DarkWork() {
             trigger: card,
             start: "clamp(top 80%)",
             once: true,
-            onEnter: () => tl.play(),
+            onEnter: () => {
+              tl.play();
+              // moving between systems: a brief energy/turbulence nudge that
+              // settles — direction alternates with the card's slide side
+              fluidBus.pulse({ turb: 0.4, bright: 0.14, dir: i % 2 === 0 ? -0.5 : 0.5 });
+            },
           });
         });
       });
